@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2014 art of coding UG, http://www.art-of-coding.eu
+# Copyright (C) 2009-2010 Informationssysteme Ralf Bensmann, http://www.bensmann.com
+#
+
+set -o nounset
+
+DEST_HOST=$1
+
+DB=$(mysql -e "show databases" | grep "[a-Z0-9_]" | grep -Ev "Database|information_schema|performance_schema|mysql" | tr '\n' ' ')
+echo "Dumping databases $DB"
+mysqldump --databases $DB | gzip -9 | ssh ${DEST_HOST} "gzip -cd | mysql"
+
+exit 0

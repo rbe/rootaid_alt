@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2014 art of coding UG, http://www.art-of-coding.eu
+# Copyright (C) 2009-2010 Informationssysteme Ralf Bensmann, http://www.bensmann.com
+#
+
+set -o nounset
+
+mysql -Ns -e "select distinct concat('show grants for \`', user, '\`@\`', host, '\`;') as query from mysql.user;" > $$.query_grants.sql
+mysql -Nsr < $$.query_grants.sql | awk '{ printf("%s;", $0); print ""; }' > $$.grants.sql
+cat $$.grants.sql | tr '\n' ';'
+cat $$.grants.sql | awk '{ printf("%s;", $0); print ""; }'
+
+rm $$.query_grants.sql
+rm $$.grants.sql
+
+exit 0

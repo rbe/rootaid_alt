@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2014 art of coding UG, http://www.art-of-coding.eu
+# Copyright (C) 2009-2010 Informationssysteme Ralf Bensmann, http://www.bensmann.com
+#
+
+set -o nounset
+
+BACKUP_DEST="${HOME}/backup"
+PATH=/usr/local/bin:$PATH
+export PATH
+
+mkdir -p ${BACKUP_DEST}
+
+# Backup MySQL databases of user
+for db in $(mysql -e "show databases;" | grep -v "|" | grep -v "Database" | grep -v "information_schema" | grep -v "performance_schema")
+do
+    # RAT-25: Replace 002d with dash, directory names contain @002d instead of a dash
+    db=${db/@002d/-}
+    f="${BACKUP_DEST}/${db}.sql.gz"
+    echo "Backing up MySQL database ${db} to ${f}"
+    mysqldump -B ${db} | gzip -9 > ${f}
+done
+
+# Fix permissions.
+sudo chmod -R go= $BACKUP_DEST
+
+exit 0

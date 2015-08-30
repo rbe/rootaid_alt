@@ -1,0 +1,25 @@
+$u=USER
+$h=/usr/home/$u
+adduser $u
+chown root $h
+chmod o-r $h
+mkdir $h/.ssh
+chmod go= $h/.ssh
+mkdir -p $h/apache/conf
+mkdir -p $h/apache/sites
+mkdir -p $h/apache/log
+mkdir -p $h/apache/ssl
+chown -R $u $h/*
+
+for i in breezeloans.net carcred.it druckerpatronen-preisvergleich.com generationart.de german-recipes.com guenstige-druckertinte.de guenstige-tintenpatronen.de werbetechnik-preisvergleich.de
+do
+    PARTNER=rgr; DOMAINTLD=$i; WWW=www
+    dest=conf/$i
+    if [ ! -f ${dest} ]
+    then
+        cat examples/apache_example.conf | sed -e "s#PARTNER#$PARTNER#g" -e "s#DOMAINTLD#$DOMAINTLD#g" -e "s#WWW#$WWW#g" > $dest
+        echo "Created configuration for $i in conf/$i"
+    else
+        echo "Configuration for $i ALREADY EXISTS in conf/$i"
+    fi
+done

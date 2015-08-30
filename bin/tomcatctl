@@ -1,0 +1,148 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2014 art of coding UG, http://www.art-of-coding.eu
+# Copyright (C) 2009-2010 Informationssysteme Ralf Bensmann, http://www.bensmann.com
+#
+
+# chkconfig: 5 99 80
+# description: Manages Tomcat with multi-site setup.
+
+CATALINA_HOME=${CATALINA_HOME:-/opt/apache-tomcat-7.0.52}
+if [ ! -d $CATALINA_HOME ]; then
+    echo "No Tomcat installation found. Exiting."
+    exit 1
+fi
+export CATALINA_HOME
+CATALINA_HOME=${CATALINA_HOME:-/opt/apache-tomcat-7.0.52}
+CATALINA_SITE=${CATALINA_SITE:-$CATALINA_HOME/sites}
+JAVA_OPTS=${JAVA_OPTS:-"-Xms128m -Xmx512m -XX:MaxPermSize=128m -XX:+CMSClassUnloadingEnabled -XX:+CMSPermGenSweepingEnabled -server -Djava.awt.headless=true -Dorg.apache.catalina.loader.WebappClassLoader.ENABLE_CLEAR_REFERENCES=false -Ddisable.auto.recompile=true -Djava.net.preferIPv4Stack=true"}
+export JAVA_OPTS
+mkdir -p $CATALINA_SITE
+SITES=$(ls $CATALINA_SITE)
+
+#
+# Count Tomcat processes
+#
+count_tomcat() {
+    echo $(ps ax | grep -v grep | grep java | grep -c tomcat )
+}
+
+#
+# Start a certain site
+#
+_start_site() {
+    site=$1
+    CATALINA_BASE=$CATALINA_SITE/$site
+    export CATALINA_BASE
+    pushd $CATALINA_BASE 2>/dev/null 1>&2
+    echo "Starting Tomcat instance for site: $site with CATALINA_BASE=$CATALINA_BASE"
+    $CATALINA_HOME/bin/startup.sh 1>$CATALINA_BASE/logs/startup.log 2>/dev/null
+    popd 2>/dev/null 1>&2
+}
+
+#
+# Start all sites
+#
+_start_all_sites() {
+    for s in $SITES; do
+        _start_site $s
+    done
+}
+
+#
+# Stop a certain site
+#
+_stop_site() {
+    site=$1
+    CATALINA_BASE=$CATALINA_SITE/$site
+    export CATALINA_BASE
+    echo "Stopping Tomcat instance for site: $site with CATALINA_BASE=$CATALINA_BASE"
+    $CATALINA_HOME/bin/shutdown.sh 1>$CATALINA_BASE/logs/shutdown.log 2>/dev/null
+}
+
+#
+# Stop all sites
+#
+_stop_all_sites() {
+    for s in $SITES; do
+        _stop_site $s
+    done
+}
+
+#
+# Synchronise shared libraries
+#
+_sync_shared_lib() {
+    site=$1
+    site_base=$CATALINA_SITE/$site
+    echo "Copying shared libraries from $CATALINA_HOME/shared/lib to $site_base/lib"
+    if [ ! -d $CATALINA_HOME/shared ]; then
+        mkdir -p $site_base/lib
+        fi
+    if [ -d $CATALINA_HOME/shared ]; then
+        cp -R $CATALINA_HOME/shared/lib/* $site_base/lib
+    fi
+}
+
+#
+# Create a new site
+#
+_create_site() {
+    site=$1
+    site_base=$CATALINA_SITE/$site
+    if [ ! -d $site_base ]; then
+        echo "Creating site $site at $site_base"
+        # Create directories
+        for i in conf logs temp webapps
+        do
+            mkdir -p $site_base/$i
+        done
+        # Copy configuration
+        cp -R $CATALINA_HOME/conf/* $site_base/conf
+        # Shared libraries
+        _sync_shared_lib $site
+        # Copy manager
+        echo cp -R $CATALINA_HOME/webapps/manager $site_base/webapps
+        cp -R $CATALINA_HOME/webapps/manager $site_base/webapps
+    else
+        echo "Site base $site_base already exists. Delete it first."
+    fi
+}
+
+case "$1" in
+    start)
+        _start_all_sites
+    ;;
+    start-site)
+        _start_site $2
+    ;;
+    stop)
+        _stop_all_sites
+    ;;
+    stop-site)
+        _stop_site $2
+    ;;
+    restart)
+        _stop_all_sites
+        echo "Waiting 5 seconds"
+        sleep 5
+        _start_all_sites
+    ;;
+    restart-site)
+        _stop_site $2
+        echo "Waiting 5 seconds"
+        sleep 5
+        _start_site $2
+    ;;
+    create-site)
+        _create_site $2
+    ;;
+    sync-shared-lib)
+        _sync_shared_lib $2
+    ;;
+    *)
+        echo "usage: $0 { start | start-site <site> | stop | stop-site <site> | restart | restart-site <site> | create-site <site> | sync-shared-lib <site> }"
+    ;;
+esac
+
+exit 0

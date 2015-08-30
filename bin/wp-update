@@ -1,0 +1,119 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2014 art of coding UG, http://www.art-of-coding.eu
+# Copyright (C) 2009-2010 Informationssysteme Ralf Bensmann, http://www.bensmann.com
+#
+
+set -o nounset
+
+declare MODE
+
+_wp_uploads() {
+    DIR=$1
+    YEAR=$(date +%Y)
+    MONTH=$(date +%m)
+    UPLOADS=$(find ${DIR} -type d -name uploads)
+    for u in ${UPLOADS}
+    do
+        find ${u} -print0 | xargs -0 chmod a-w
+        month=${u}/${YEAR}/${MONTH}
+        [ ! -d ${month} ] && mkdir ${month}
+        find ${month} -print0 | xargs -0 chmod a+w
+    done
+}
+
+while getopts ":des:" opt
+do
+    case "${opt}" in
+        d)
+            MODE="disable"
+            ;;
+        e)
+            MODE="enable"
+            ;;
+        s)
+            SITE=${OPTARG}
+            ;;
+        \?)
+            echo "Invalid option: -${OPTARG}" >&2
+            exit 1
+            ;;
+        :)
+            echo "Option -${OPTARG} requires an argument"
+            exit 1
+            ;;
+    esac
+done
+
+case "$1" in
+    on)
+        find $HOME/apache/sites -print0 | sudo xargs -0 chmod a+w
+        sudo chown -R rgr:rgr $HOME/apache/sites
+        echo "*"
+        echo "*"
+        echo "* UPDATES FOR ALL SITES ENABLED!"
+        echo "*"
+        echo "* Attention: Users with SFTP access"
+        echo "*            do not have access to files until this mode is disabled."
+        echo "*"
+        echo "* WARNING: DO NOT FORGET TO DISABLE THIS MODE"
+        echo "*          use '$(basename $0) off'"
+        echo "*"
+        echo "*"
+    ;;
+    off)
+    	sudo chmod go-w $HOME/apache/sites
+        find $HOME/apache/sites -print0 | sudo xargs -0 chmod o-w
+    	# Other websites
+    	sudo chown root:root $HOME/apache/sites
+    	sudo chmod -R go-w $HOME/apache/sites
+        # gekonntgekocht.de
+    	sudo chown root:root $HOME/apache/sites/gekonntgekocht.de
+    	sudo chmod go-w      $HOME/apache/sites/gekonntgekocht.de
+        # testing.gekonntgekocht.de
+        find $HOME/apache/sites/gekonntgekocht.de/testing/htdocs/fotos -print0 | sudo xargs -0 chmod o+w
+        find $HOME/apache/sites/gekonntgekocht.de/testing/htdocs/thumb -print0 | sudo xargs -0 chmod o+w
+        sudo chown -R www-data:www-data $HOME/apache/sites/gekonntgekocht.de/testing/tpl
+        sudo chown -R rgr:rgr           $HOME/apache/sites/gekonntgekocht.de/testing/tpl/templates*
+        sudo chmod -R g+w               $HOME/apache/sites/gekonntgekocht.de/testing/*
+    	sudo chown    root:root         $HOME/apache/sites/gekonntgekocht.de/testing
+    	sudo chmod go-w                 $HOME/apache/sites/gekonntgekocht.de/testing
+        # www.gekonntgekocht.de
+        #find $HOME/apache/sites/gekonntgekocht.de/www/htdocs/fotos -print0 | sudo xargs -0 chmod o+w
+        #find $HOME/apache/sites/gekonntgekocht.de/www/htdocs/thumb -print0 | sudo xargs -0 chmod o+w
+        #sudo chown -R www-data:www-data $HOME/apache/sites/gekonntgekocht.de/www/tpl
+        #sudo chown -R rgr:rgr           $HOME/apache/sites/gekonntgekocht.de/www/tpl/templates*
+        #sudo chmod -R g+w               $HOME/apache/sites/gekonntgekocht.de/www/*
+    	#sudo chown    root:root         $HOME/apache/sites/gekonntgekocht.de/www
+    	#sudo chmod go-w                 $HOME/apache/sites/gekonntgekocht.de/www
+        find $HOME/apache/sites/gekonntgekocht.de/www/wp-content/gallery -print0 | sudo xargs -0 chmod o+w
+        find $HOME/apache/sites/gekonntgekocht.de/www/wp-content/uploads/$(date +Y) -print0 | sudo xargs -0 chmod o+w
+        find $HOME/apache/sites/gekonntgekocht.de/www/wp-content/tmp -print0 | sudo xargs -0 chmod o+w
+        find $HOME/apache/sites/gekonntgekocht.de/www/wp-content/w3tc -print0 | sudo xargs -0 chmod o+w
+    	sudo chown root:root $HOME/apache/sites/gekonntgekocht.de/www
+    	sudo chmod go-w      $HOME/apache/sites/gekonntgekocht.de/www
+        # blog.gekonntgekocht.de
+        find $HOME/apache/sites/gekonntgekocht.de/blog/wp-content/gallery -print0 | sudo xargs -0 chmod o+w
+        find $HOME/apache/sites/gekonntgekocht.de/blog/wp-content/uploads/$(date +Y) -print0 | sudo xargs -0 chmod o+w
+        find $HOME/apache/sites/gekonntgekocht.de/blog/wp-content/tmp -print0 | sudo xargs -0 chmod o+w
+        find $HOME/apache/sites/gekonntgekocht.de/blog/wp-content/w3tc -print0 | sudo xargs -0 chmod o+w
+    	sudo chown root:root $HOME/apache/sites/gekonntgekocht.de/blog
+    	sudo chmod go-w      $HOME/apache/sites/gekonntgekocht.de/blog
+        # www.german-recipes.com
+        #find $HOME/apache/sites/german-recipes.com/www/wp-content/gallery -print0 | xargs -0 chmod o+w
+        find $HOME/apache/sites/german-recipes.com/www/wp-content/uploads/$(date +Y) -print0 | sudo xargs -0 chmod o+w
+    	# Files should not have executable flag
+        find $HOME/apache/sites -type f -print0 | sudo xargs -0 chmod a-x
+    	#
+        echo "*"
+        echo "*"
+        echo "* Updates disabled!"
+        echo "*"
+        echo "*"
+    ;;
+    *)
+        echo "usage: $(basename $0) { on | off }"
+    ;;
+esac
+
+exit 0

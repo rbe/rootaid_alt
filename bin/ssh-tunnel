@@ -1,0 +1,90 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2014 art of coding UG, http://www.art-of-coding.eu
+# Copyright (C) 2009-2010 Informationssysteme Ralf Bensmann, http://www.bensmann.com
+#
+
+set -o nounset
+
+declare -A TUNNEL=()
+. $0.conf
+
+_kill_tunnel() {
+    local ident=$1
+    local localport=$(echo ${ident} | awk '{print $1}')
+    for p in $(ps ax | grep ssh | grep ${localport} | grep -v grep | awk '{print $1}')
+    do
+        echo "Killing tunnel: $(ps ax | grep ${p} | grep -v grep)"
+        kill -9 ${p}
+    done
+}
+
+_establish_tunnel() {
+    local localport=$1
+    local host=$2
+    local remoteport=$3
+    local remotehost=$4
+    _kill_tunnel ${remoteport}
+    ssh -f -N -L ${localport}:${host}:${remoteport} ${remotehost}
+    if [ $? -eq 0 ]
+    then
+        echo "Tunnel established: $(ps ax | grep ${localport} | grep -v grep)"
+    else
+        echo "Could not establish tunnel"
+        exit 1
+    fi
+}
+
+_usage() {
+    echo "usage: $0 [ -d | -e ] -t <tunnel>"
+    if [[ ${#TUNNEL[@]} -gt 0 ]]
+    then
+        for t in ${!TUNNEL[*]}
+        do
+            echo "       -t ${t}"
+        done
+    fi
+}
+
+declare mode
+mode=
+declare tunnel
+tunnel=
+
+while getopts ":det:" opt
+do
+    case "${opt}" in
+        d) mode="disable" ;;
+        e) mode="enable" ;;
+        t)
+            tunnel=${TUNNEL[$OPTARG]}
+        ;;
+        *)
+            echo "Unknown option ${opt}"
+        ;;
+    esac
+done
+
+case "${mode}" in
+    disable)
+        if [ -n "${tunnel}" ]
+        then
+            _kill_tunnel ${tunnel}
+        else
+            _usage
+        fi
+    ;;
+    enable)
+        if [ -n "${tunnel}" ]
+        then
+            _establish_tunnel ${tunnel}
+        else
+            _usage
+        fi
+    ;;
+    *)
+        _usage
+    ;;
+esac
+
+exit 0

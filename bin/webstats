@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+#
+# Copyright (C) 2011-2014 art of coding UG, http://www.art-of-coding.eu
+# Copyright (C) 2009-2010 Informationssysteme Ralf Bensmann, http://www.bensmann.com
+#
+
+PATH=/usr/local/bin:$PATH
+HOME_PATH=/home
+APACHE_LOG=apache/log
+WEBALIZER_CONF=apache/webalizer
+yesterday=$(date -v-1d +%Y-%m-%d)
+
+set -o nounset
+
+#
+# Execute a command on certain files in a directory.
+#
+exec_with_file() {
+    local dir=$1; shift
+    local pat=$1; shift
+    local cmd=$*
+    if [ -d ${dir} ]
+    then
+        for f in ${dir}/${pat}
+        do
+            [ -f ${f} ] && ${cmd} ${f}
+        done
+    fi
+}
+
+for u in ${HOME_PATH}/*
+do
+    if [ -d ${u}/${APACHE_LOG} ]
+    then
+        for w in ${u}/${WEBALIZER_CONF}/*
+        do
+            if [ -f $w ]
+            then
+                site=${w##*/}
+                webalizer -c ${w} ${u}/${APACHE_LOG}/${site}*access*${yesterday}*log
+            fi
+        done
+        exec_with_file ${u}/${APACHE_LOG} "*${yesterday}*" bzip2 -z9
+    fi
+done
+
+exit 0

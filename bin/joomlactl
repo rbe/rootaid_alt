@@ -1,0 +1,135 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2014 art of coding UG, http://www.art-of-coding.eu
+# Copyright (C) 2009-2010 Informationssysteme Ralf Bensmann, http://www.bensmann.com
+#
+
+SITES=$HOME/apache/sites
+BASE=
+BACKUP=$HOME/backup
+MODE=
+COMMAND=$1
+shift
+
+while getopts "edD:f:" opt
+do
+    case "$opt" in
+        d)
+            MODE="disable"
+        ;;
+        e)
+            MODE="enable"
+        ;;
+        D)
+            DOMAIN=$OPTARG
+        ;;
+        f)
+            FOLDER=$OPTARG
+        ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            exit 1
+        ;;
+        :)
+            echo "Option -${OPTARG} requires an argument"
+            exit 1
+        ;;
+    esac
+done
+
+e() {
+    echo "$(date) $*"
+}
+
+_joomla_perms() {
+	set -o nounset
+	local DOMAIN=$1
+	local FOLDER=$2
+	case "${MODE}" in
+		enable)
+			e "Enable write permissions for ${DOMAIN}/${FOLDER}"
+			sudo chown -R cew:cew ${BASE}
+			sudo chmod -R g+w,o= ${BASE}/administrator/cache
+			sudo chmod -R g+w,o= ${BASE}/administrator/components
+			sudo chmod -R g+w,o= ${BASE}/administrator/language
+			sudo chmod -R g+w,o= ${BASE}/administrator/manifests
+			sudo chmod -R g+w,o= ${BASE}/administrator/modules
+			sudo chmod -R g+w,o= ${BASE}/administrator/templates
+			sudo chmod -R g+w,o= ${BASE}/components
+			sudo chmod -R g+w,o= ${BASE}/images
+			sudo chmod -R g+w,o= ${BASE}/language
+			sudo chmod -R g+w,o= ${BASE}/libraries
+			sudo chmod -R g+w,o= ${BASE}/media
+			sudo chmod -R g+w,o= ${BASE}/modules
+			sudo chmod -R g+w,o= ${BASE}/plugins
+			sudo chmod -R g+w,o= ${BASE}/templates
+			sudo chmod -R g+w,o= ${BASE}/cache
+			sudo chmod -R g+w,o= ${BASE}/logs
+			sudo chmod -R g+w,o= ${BASE}/tmp
+			sudo chmod g+w,o= ${BASE}/configuration.php
+			e "Done"
+		;;
+		disable)
+			e "Disable write permissions for ${DOMAIN}/${FOLDER}"
+			sudo chown -R cew:cew ${BASE}
+			sudo chmod -R g-w,o= ${BASE}/modules
+			sudo chmod -R g-w,o= ${BASE}/administrator/components
+			sudo chmod -R g-w,o= ${BASE}/administrator/language
+			sudo chmod -R g-w,o= ${BASE}/administrator/manifests
+			sudo chmod -R g-w,o= ${BASE}/administrator/modules
+			sudo chmod -R g-w,o= ${BASE}/administrator/templates
+			sudo chmod -R g-w,o= ${BASE}/components
+			sudo chmod -R g-w,o= ${BASE}/language
+			sudo chmod -R g-w,o= ${BASE}/libraries
+			sudo chmod -R g-w,o= ${BASE}/media
+			sudo chmod -R g-w,o= ${BASE}/modules
+			sudo chmod -R g-w,o= ${BASE}/plugins
+			sudo chmod -R g-w,o= ${BASE}/templates
+			sudo chmod g-w,o= ${BASE}/configuration.php
+			e "Done"
+		;;
+		*)
+			echo "usage: $0 perms { -e | -d } { -D domain -f folder }"
+		;;
+	esac
+}
+
+_joomla_backup() {
+	set -o nounset
+	local DOMAIN=$1
+	local FOLDER=$2
+	local archive=${BACKUP}/backup-${DOMAIN}_${FOLDER/\//_}.tar.gz
+	local db=$(grep 'public $db =' ${BASE}/configuration.php | sed -e 's#.*public $db = ##g' -e "s#'##g" -e 's#;##g')
+	local user=$(grep 'public $user =' ${BASE}/configuration.php | sed -e 's#.*public $user = ##g' -e "s#'##g" -e 's#;##g')
+	local password=$(grep 'public $password =' ${BASE}/configuration.php | sed -e 's#.*public $password = ##g' -e "s#'##g" -e 's#;##g')
+	local sqldump=${BACKUP}/${db}.sql
+	e "Dumping MySQL database ${db} to ${sqldump}"
+	mysqldump -u ${user} --password=${password} ${db} > ${sqldump}
+	e "Creating backup archive ${archive}"
+	tar czf ${archive} ${BASE} ${sqldump}
+	rm ${sqldump}
+	e "Done"
+}
+
+_joomla_usage() {
+	echo "usage: $0 perms  { -D domain -f folder } { -e | -d }"
+	echo "usage: $0 backup { -D domain -f folder }"
+}
+
+if [[ -n "${SITES}" && -n "${DOMAIN}" && -n "${FOLDER}" ]]
+then
+	BASE=${SITES}/${DOMAIN}/${FOLDER}
+	case "${COMMAND}" in
+		perms)
+			_joomla_perms ${DOMAIN} ${FOLDER}
+		;;
+		backup)
+			_joomla_backup ${DOMAIN} ${FOLDER}
+		;;
+		*)
+			_joomla_usage
+		;;
+	esac
+else
+	_joomla_usage
+fi

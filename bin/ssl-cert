@@ -1,0 +1,84 @@
+#!/bin/bash
+#
+# Copyright (C) 2011-2014 art of coding UG, http://www.art-of-coding.eu
+# Copyright (C) 2009-2010 Informationssysteme Ralf Bensmann, http://www.bensmann.com
+#
+
+set -o nounset
+
+declare MODE=
+declare NAME=
+
+_check_cert() {
+    KEYNAME=$1
+    CSR=${KEYNAME}.csr
+    KEY=${KEYNAME}.key
+    CRT=${KEYNAME}.crt
+    if [ -f ${CSR} ]
+    then
+        HV1=$(openssl req  -noout -modulus -in ${CSR} | openssl md5 | awk '{print $2}')
+    else
+        echo "CSR (${CSR}) not found"
+        exit 1
+    fi
+    if [ -f ${CSR} ]
+    then
+        HV2=$(openssl rsa  -noout -modulus -in ${KEY} | openssl md5 | awk '{print $2}')
+    else
+        echo "Key (${KEY}) not found"
+        exit 1
+    fi
+    if [ -f ${CSR} ]
+    then
+        HV3=$(openssl x509 -noout -modulus -in ${CRT} | openssl md5 | awk '{print $2}')
+    else
+        echo "Certificate (${CRT}) not found"
+        exit 1
+    fi
+    st=0
+    for i in $HV1 $HV2 $HV3; do
+        [ "$HV1" = "$i" ]
+        st=$(($? + st))
+    done
+    if [ $st -eq 0 ]
+    then
+        echo "All hash values match."
+        exit 0
+    else
+        echo "NOT all hash values match."
+        exit 1
+    fi
+}
+
+while getopts ":n:" opt
+do
+    case "${opt}" in
+        c)
+            MODE="check-cert"
+            ;;
+        n)
+            NAME=${OPTARG}
+            ;;
+        \?)
+            echo "Invalid option: -${OPTARG}" >&2
+            exit 1
+            ;;
+        :)
+            echo "Option -${OPTARG} requires an argument"
+            exit 1
+            ;;
+    esac
+done
+
+case "${MODE}" in
+    check-cert)
+        _check_cert ${NAME}
+        exit 0
+        ;;
+    *)
+        echo "Unknown mode: ${MODE}"
+        exit 1
+        ;;
+esac
+
+exit 255
