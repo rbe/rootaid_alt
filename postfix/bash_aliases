@@ -1,0 +1,1 @@
+alias postrmqueue="postqueue -p | grep -E ^[0-9A-F] | awk '{print $1}' | tr -d '*!' | postsuper -d -"
