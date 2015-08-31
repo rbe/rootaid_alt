@@ -1,15 +1,54 @@
 #!/bin/bash
 #
-# Copyright (C) 2011-2014 art of coding UG, http://www.art-of-coding.eu
+# Copyright (C) 2011-2015 art of coding UG, http://www.art-of-coding.eu
 # Copyright (C) 2009-2010 Informationssysteme Ralf Bensmann, http://www.bensmann.com
 #
 
-set -o nounset
+while getopts ":ad:h:" opt
+do
+    case "$opt" in
+        a)
+            MODE="all"
+        ;;
+        d)
+            MODE="single"
+            DATABASE=$OPTARG
+        ;;
+        h)
+            HOST=$OPTARG
+        ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            exit 1
+        ;;
+        :)
+            echo "Option -${OPTARG} requires an argument"
+            exit 1
+        ;;
+    esac
+done
 
-DEST_HOST=$1
+copy_all_dbs() {
+    local host=$1
+    local ALL_DBS=$(mysql -e "show databases" | grep "[a-Z0-9_]" | grep -Ev "Database|information_schema|performance_schema|mysql" | tr '\n' ' ')
+    echo "Dumping databases ${ALL_DBS} and copying them to ${host}"
+    mysqldump --databases ${ALL_DBS} | gzip -9 | ssh ${host} "gzip -cd | mysql"
+}
 
-DB=$(mysql -e "show databases" | grep "[a-Z0-9_]" | grep -Ev "Database|information_schema|performance_schema|mysql" | tr '\n' ' ')
-echo "Dumping databases $DB"
-mysqldump --databases $DB | gzip -9 | ssh ${DEST_HOST} "gzip -cd | mysql"
+copy_single_db() {
+    local host=$1
+    local db=$2
+    mysqldump --databases $db | gzip -9 | ssh ${host} "gzip -cd | mysql"
+}
+
+if [ x"${MODE}" = x"all" ]
+then
+    copy_all_dbs ${HOST}
+elif [ x"${MODE}" = x"single" ]
+then
+    copy_single_db ${HOST} ${DATABASE}
+else
+    echo "usage: $0 -h <host> { -a | -d <database> }"
+fi
 
 exit 0
