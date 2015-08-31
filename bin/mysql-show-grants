@@ -8,8 +8,9 @@ set -o nounset
 
 mysql -Ns -e "select distinct concat('show grants for \`', user, '\`@\`', host, '\`;') as query from mysql.user;" > $$.query_grants.sql
 mysql -Nsr < $$.query_grants.sql | awk '{ printf("%s;", $0); print ""; }' > $$.grants.sql
-cat $$.grants.sql | tr '\n' ';'
-cat $$.grants.sql | awk '{ printf("%s;", $0); print ""; }'
+#cat $$.grants.sql | tr '\n' ';'
+#cat $$.grants.sql | awk '{ printf("%s;", $0); print ""; }'
+cat $$.grants.sql | sort
 
 rm $$.query_grants.sql
 rm $$.grants.sql
