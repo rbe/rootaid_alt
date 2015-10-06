@@ -8,12 +8,74 @@ set -o nounset
 
 declare MODE=
 declare NAME=
+declare TYPE=
+declare XARG=
+declare ROOT_CA=
+
+_show_csr() {
+    local commonname=$1
+    openssl req -in ${commonname}.csr -text
+}
+
+_show_crt() {
+    local commonname=$1
+    openssl x509 -in ${commonname}.crt -text
+}
+
+_gen_root_ca() {
+    local ca_name=$1
+    local days=$2
+    local xarg=$3
+    local pass=
+    local country=
+    local state=
+    local locality=
+    local organization=
+    local organizationalUnit=
+    local commonName=
+    eval ${xarg}
+    if [ -z "${pass}" -a -x $(which pwgen) ]
+    then
+        pass=$(pwgen -BCn 12 1)
+        echo "!!!"
+        echo "!!! Password for ${ca_name}.key is ${pass}"
+        echo "!!!"
+        echo "${pass}" >${ca_name}.pass
+    else
+        echo "Need password (use -x pass=) or install pwgen"
+    fi
+    openssl genrsa -passout pass:${pass} -des3 -out ${ca_name}.key 2048
+    openssl rsa -passin pass:${pass} -in ${ca_name}.key -pubout -out ${ca_name}.pub
+    openssl req -passin pass:${pass} -x509 -new -nodes -key ${ca_name}.key -days ${days} -out ${ca_name}.crt \
+        -subj "/C=${country}/ST=${state}/L=${locality}/O=${organization}/OU=${organizationalUnit}/CN=${commonName}"
+}
+
+_self_sign_cert() {
+    local commonname=$1
+    local days=$2
+    local xarg=$3
+    local country=
+    local state=
+    local locality=
+    local organization=
+    local organizationalUnit=
+    eval ${xarg}
+    openssl req -nodes -newkey rsa:2048 -nodes -keyout ${commonname}.key -out ${commonname}.csr \
+        -subj "/C=${country}/ST=${state}/L=${locality}/O=${organization}/OU=${organizationalUnit}/CN=${commonname}"
+    if [ -n "${ROOT_CA}" ]
+    then
+        local pass=$(cat ${ROOT_CA}.pass)
+        openssl x509 -req -days ${days} -passin pass:${pass} -in ${commonname}.csr -CA ${ROOT_CA}.crt -CAkey ${ROOT_CA}.key -CAcreateserial -out ${commonname}.crt
+    else
+        openssl x509 -req -days ${days} -in ${commonname}.csr -signkey ${commonname}.key -out ${commonname}.crt
+    fi
+}
 
 _check_cert() {
-    KEYNAME=$1
-    CSR=${KEYNAME}.csr
-    KEY=${KEYNAME}.key
-    CRT=${KEYNAME}.crt
+    local KEYNAME=$1
+    local CSR=${KEYNAME}.csr
+    local KEY=${KEYNAME}.key
+    local CRT=${KEYNAME}.crt
     if [ -f ${CSR} ]
     then
         HV1=$(openssl req  -noout -modulus -in ${CSR} | openssl md5 | awk '{print $2}')
@@ -50,35 +112,107 @@ _check_cert() {
     fi
 }
 
-while getopts ":n:" opt
+_check_ssl_session_Cache() {
+    local sitename=$1
+    openssl s_client -connect ${sitename}:443 -state -reconnect
+}
+
+_show_usage() {
+    echo "Copyright (C) 2015 art of coding UG"
+    echo
+    echo "usage: $0"
+    echo
+    echo "       -s                     Sign mode"
+    echo "       -n <certificate name>  Name of certificate or root ca to operate"
+    echo "       -r <root ca name>      Name of root ca when signing certificate"
+    echo "       -t <type>              Type can be: rootca | self"
+    echo "       -v                     Verify mode"
+    echo "       -x \"name=value\"        Parameters dependent to mode"
+    echo "                              e.g. \"country=DE state=Hamburg locality=Hamburg organization=Acme\\ Inc.\""
+    echo "                              for $(basename $0) -s -t self"
+    echo
+    echo "Examples:"
+    echo
+    echo "Check certificate (.csr, .key, .crt)"
+    echo "$(basename $0) -v -t cert -n m.obeta.de"
+    echo
+    echo "Generate own root CA"
+    echo "$(basename $0) -s -t rootca -n myrootca -x "country=DE state=Hamburg locality=Hamburg organization=My\ GmbH commonName=My\ Root\ CA""
+    echo
+    echo "Generate self-signed certificate with own root CA"
+    echo "$(basename $0) -s -t self -r myrootca -n testfactportal.factpartner.de -x "country=DE state=Hamburg locality=Hamburg organization=My\ GmbH""
+    echo
+    echo "Generate simple self-signed certificate"
+    echo "$(basename $0) -s -t self -n testfactportal.factpartner.de -x "country=DE state=Hamburg locality=Hamburg organization=My\ GmbH""
+    echo ""
+}
+
+while getopts ":chn:r:st:x:v" opt
 do
     case "${opt}" in
-        c)
-            MODE="check-cert"
-            ;;
         n)
             NAME=${OPTARG}
-            ;;
+        ;;
+        r)
+            MODE="sign"
+            ROOT_CA=${OPTARG}
+        ;;
+        s)
+            MODE="sign"
+        ;;
+        t)
+            TYPE=${OPTARG}
+        ;;
+        v)
+            MODE="verify"
+        ;;
+        x)
+            XARG=${OPTARG}
+        ;;
         \?)
             echo "Invalid option: -${OPTARG}" >&2
             exit 1
-            ;;
+        ;;
         :)
             echo "Option -${OPTARG} requires an argument"
             exit 1
-            ;;
+        ;;
+        h)
+        _show_usage
+        ;;
     esac
 done
 
+if [ -z "${MODE}" ]
+then
+    _show_usage
+    exit 1
+fi
+
 case "${MODE}" in
-    check-cert)
-        _check_cert ${NAME}
+    verify)
+        case "${TYPE}" in
+            cert)
+                _check_cert ${NAME}
+            ;;
+        esac
         exit 0
-        ;;
+    ;;
+    sign)
+        case "${TYPE}" in
+            rootca)
+                _gen_root_ca ${NAME} 3650 "${XARG}"
+            ;;
+            self)
+                _self_sign_cert ${NAME} 3650 "${XARG}"
+            ;;
+        esac
+        exit 0
+    ;;
     *)
         echo "Unknown mode: ${MODE}"
         exit 1
-        ;;
+    ;;
 esac
 
 exit 255
