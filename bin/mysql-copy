@@ -41,6 +41,8 @@ copy_single_db() {
     mysqldump --databases $db | gzip -9 | ssh ${host} "gzip -cd | mysql"
 }
 
+# TODO Check for .my.cnf or supply user/password
+
 if [ x"${MODE}" = x"all" ]
 then
     copy_all_dbs ${HOST}
