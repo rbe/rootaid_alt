@@ -112,7 +112,7 @@ _check_cert() {
     fi
 }
 
-_check_ssl_session_Cache() {
+_check_ssl_session_cache() {
     local sitename=$1
     openssl s_client -connect ${sitename}:443 -state -reconnect
 }
@@ -137,13 +137,13 @@ _show_usage() {
     echo "$(basename $0) -v -t cert -n m.obeta.de"
     echo
     echo "Generate own root CA"
-    echo "$(basename $0) -s -t rootca -n myrootca -x "country=DE state=Hamburg locality=Hamburg organization=My\ GmbH commonName=My\ Root\ CA""
+    echo "$(basename $0) -s -t rootca -n myrootca -x \"country=DE state=Hamburg locality=Hamburg organization=My\ GmbH commonName=My\ Root\ CA\""
     echo
     echo "Generate self-signed certificate with own root CA"
-    echo "$(basename $0) -s -t self -r myrootca -n testfactportal.factpartner.de -x "country=DE state=Hamburg locality=Hamburg organization=My\ GmbH""
+    echo "$(basename $0) -s -t self -r myrootca -n testfactportal.factpartner.de -x \"country=DE state=Hamburg locality=Hamburg organization=My\ GmbH\""
     echo
     echo "Generate simple self-signed certificate"
-    echo "$(basename $0) -s -t self -n testfactportal.factpartner.de -x "country=DE state=Hamburg locality=Hamburg organization=My\ GmbH""
+    echo "$(basename $0) -s -t self -n testfactportal.factpartner.de -x \"country=DE state=Hamburg locality=Hamburg organization=My\ GmbH\""
     echo ""
 }
 
