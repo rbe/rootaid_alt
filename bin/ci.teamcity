@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+# Copyright (C) 2014-2015 art of coding UG, http://www.art-of-coding.eu
+
+BASE=https://ci.art-of-coding.eu
+BASE_REL=/repository/download
+BUILD_NAME=
+BUILD_ID=
+ARTIFACT_ID=
+VERSION=
+TYPE=
+ARTIFACT_BASE_URL=
+HTTP_USER=
+HTTP_PASSWORD=
+HTTPGET=
+
+e() {
+    echo "$(date) $*"
+}
+
+ci_teamcity_download() {
+    local artifact_id=$1
+    local version=$2
+    local filetype=$3
+    local artifact_name=${artifact_id}${version:+-$version}.${filetype}
+    local download=( ${ARTIFACT_BASE_URL}/distrib/${artifact_name} ${ARTIFACT_BASE_URL}/${artifact_id}/target/${artifact_name})
+    for d in ${download[*]}
+    do
+        e "Trying to download artifact ${artifact_id} version ${version}"
+        e "   (URL: ${d})"
+        output=httpget-answer.$$
+        ${HTTPGET} ${d} >${output} 2>&1
+        if [[ $(grep -c "HTTP/1.1 4" ${output}) -gt 0 ]]
+        then
+            e "   Failed, response code: $(grep "HTTP/1.1 4" ${output} | tr -d '\n')"
+            rm ${artifact_name} 1>/dev/null 2>&1
+            rm ${output} 1>/dev/null 2>&1
+        elif [[ $(grep -c "HTTP/1.1 5" ${output}) -gt 0 ]]
+        then
+            e "   Failed, response code: $(grep "HTTP/1.1 5" ${output} | tr -d '\n')"
+            rm ${artifact_name} 1>/dev/null 2>&1
+            rm ${output} 1>/dev/null 2>&1
+        else
+            e "   Success, response code: $(grep "HTTP/1.1 " ${output} | tr -d '\n')"
+            rm ${output} 1>/dev/null 2>&1
+            break
+        fi
+    done
+}
+
+ci_usage() {
+    echo "usage: $0 -b <build name> [-i <build id>] -a <artifactId> [-v <version>] [-t <file type>] [-u <username>] [-p <password>] "
+}
+
+while getopts "b:i:a:v:t:u:p:" opt
+do
+    case "${opt}" in
+        b)
+            BUILD_NAME=${OPTARG}
+        ;;
+        i)
+            BUILD_ID="${OPTARG}:id"
+        ;;
+        a)
+            ARTIFACT_ID=${OPTARG}
+        ;;
+        v)
+            VERSION=${OPTARG}
+        ;;
+        t)
+            TYPE=${OPTARG}
+        ;;
+        u)
+            HTTP_USER=${OPTARG}
+        ;;
+        p)
+            HTTP_PASSWORD=${OPTARG}
+        ;;
+    esac
+done
+
+if [ -z "${BUILD_NAME}" -o -z "${ARTIFACT_ID}" ]
+then
+    ci_usage
+    exit 1
+fi
+
+if [[ -n "$(which wget)" ]]
+then
+    if [[ -n "${HTTP_USER}" ]]
+    then
+        HTTPGET='wget -q --auth-no-challenge --user=${HTTP_USER} --password=${HTTP_PASSWORD} --server-response'
+    else
+        HTTPGET='wget -q --server-response'
+    fi
+elif [[ -n "$(which curl)" ]]
+then
+    if [[ -n "${HTTP_USER}" ]]
+    then
+        HTTPGET="curl -s -D - -LO --basic --user ${HTTP_USER}:${HTTP_PASSWORD}"
+    else
+        HTTPGET="curl -s -D - -LO"
+    fi
+else
+    echo "Could not find HTTP GET tool like wget, curl"
+    exit 1
+fi
+
+set -o nounset
+
+BUILD_ID=${BUILD_ID:-latest.lastSuccessful}
+if [[ -n "${HTTP_USER}" ]];
+then
+    ARTIFACT_BASE_URL=${BASE}/${BASE_REL}/${BUILD_NAME}/${BUILD_ID}
+else
+    ARTIFACT_BASE_URL=${BASE}/guestAuth${BASE_REL}/${BUILD_NAME}/${BUILD_ID}
+fi
+
+type=${TYPE:-jar war zip tar.gz tgz}
+for t in ${type}
+do
+    ci_teamcity_download ${ARTIFACT_ID} ${VERSION} ${t}
+done
+
+exit 0
