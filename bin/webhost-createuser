@@ -13,12 +13,6 @@ mkdir -p ${USER_HOME}/apache/sites
 mkdir -p ${USER_HOME}/apache/log
 mkdir -p ${USER_HOME}/apache/ssl
 
-chmod o-r ${USER_HOME}
-chmod -R go= ${USER_HOME}/.ssh
-chown -R ${USER} ${USER_HOME}
-
-chown root:root ${USER_HOME}
-chown root:root ${USER_HOME}/apache
-chown root:root ${USER_HOME}/apache/sites
+webhost-setperms ${USER}
 
 exit 0

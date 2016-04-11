@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -o nounset
+USER=$1
+USER_HOME=/home/${USER}
+
+chmod o-r ${USER_HOME}
+chmod -R go= ${USER_HOME}/.ssh
+chown -R ${USER} ${USER_HOME}
+
+chown root:root ${USER_HOME}
+chown root:root ${USER_HOME}/apache
+chown root:root ${USER_HOME}/apache/sites
+
+exit 0
