@@ -8,6 +8,7 @@ USER_HOME=/home/${USER}
 adduser --home ${USER_HOME} --disabled-password --gecos "Webhosting ${USER}" ${USER}
 
 mkdir ${USER_HOME}/.ssh
+touch ${USER_HOME}/.ssh/authorized_keys
 mkdir -p ${USER_HOME}/apache/conf
 mkdir -p ${USER_HOME}/apache/sites
 mkdir -p ${USER_HOME}/apache/log
