@@ -18,7 +18,7 @@ sudo chmod -R go= ${USER_HOME}/apache/conf
 sudo chmod -R go= ${USER_HOME}/apache/log
 
 sudo chmod -R go= ${USER_HOME}/apache/ssl
-sudo chmod -R u-w ${USER_HOME}/apache/ssl
+sudo chmod -R u-w ${USER_HOME}/apache/ssl/*
 
 sudo chmod -R o+r ${USER_HOME}/apache/sites
 # SFTP sudo chown root:root ${USER_HOME}/apache/sites
