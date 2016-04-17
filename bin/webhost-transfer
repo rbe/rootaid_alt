@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -o nounset
-
 while getopts ":w:d:h:" opt
 do
     case "$opt" in
@@ -26,7 +24,7 @@ do
     esac
 done
 
-if [ x"${HOST}" -a x"${DATABASE}" -a x"${WEB}" ]
+if [ -n "${HOST}" -a -n "${DATABASE}" -a -n "${WEB}" ]
 then
     mysql-copy -h ${HOST} -d ${DATABASE}
     rsync -e ssh -avz $HOME/apache/sites/${WEB} ${HOST}:apache/sites/${WEB}
