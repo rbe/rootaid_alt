@@ -1,15 +1,26 @@
 #!/bin/bash
 
 set -o nounset
+
 USER=$1
 USER_HOME=/home/${USER}
 
-chmod o-r ${USER_HOME}
-chmod -R go= ${USER_HOME}/.ssh
-chown -R ${USER} ${USER_HOME}
+sudo chown -R ${USER} ${USER_HOME}
+sudo chmod -R o-r ${USER_HOME}
 
-chown root:root ${USER_HOME}
-chown root:root ${USER_HOME}/apache
-chown root:root ${USER_HOME}/apache/sites
+sudo chmod -R go= ${USER_HOME}/.ssh
+
+sudo chown root:root ${USER_HOME}
+sudo chown root:root ${USER_HOME}/apache
+
+sudo chmod -R go= ${USER_HOME}/apache/conf
+
+sudo chmod -R go= ${USER_HOME}/apache/log
+
+sudo chmod -R go= ${USER_HOME}/apache/ssl
+sudo chmod -R u-w ${USER_HOME}/apache/ssl
+
+sudo chmod -R o+r ${USER_HOME}/apache/sites
+# SFTP sudo chown root:root ${USER_HOME}/apache/sites
 
 exit 0

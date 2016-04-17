@@ -1,0 +1,15 @@
+#!/bin/bash
+
+apt-get -y install apache2
+apt-get -y install libapache2-mod-evasive
+
+a2enmod alias
+a2enmod rewrite
+a2enmod deflate
+a2enmod headers
+a2enmod expires
+a2enmod ssl
+
+a2dismod status
+
+exit 0

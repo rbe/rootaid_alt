@@ -1,0 +1,57 @@
+=== Anti Spam
+
+==== SPF
+
+[source]
+.SPF record for mx.1ci.net
+----
+"v=spf1 a:mx.1ci.net -all"
+----
+
+[source]
+.SPF record allowing no MX
+----
+"v=spf1 -all"
+----
+
+==== DKIM
+
+[source,bash,linenums]
+.Create a DKIM key for "example.com"
+----
+amavisd-new genrsa /var/lib/dkim/example.com.pem 2048
+----
+
+To enable DKIM, create a `TXT` record in your DNS domain by looking up the
+public key:
+
+[source,bash,linenums]
+.Show DKIM key of a domain
+----
+amavisd-new showkeys 0xcafebabe.eu
+----
+
+.Example
+----
+root@mx:~/# amavisd-new showkeys odisee.de
+; key#5 1024 bits, i=dkim, d=odisee.de, /var/lib/dkim/odisee.de.pem
+dkim._domainkey.odisee.de.	3600 TXT (
+  "v=DKIM1; p="
+  "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCxydX2GGkRpDoeAJOUB82VpWsa"
+  "cYcu+Vfll84casm78c5ICvk4BoMmsNFPh36uOOxQVAFrqLl2yhwJNJ+/0+EB88wS"
+  "xgaw+anOyaj32PoeVqng1pSAlEK+UVHlr7vSMRJvTHaFlAS5Ha1w8k3PnaeI8APs"
+  "r6VTptOxSLglgeAjxQIDAQAB")
+----
+
+and put the text part from `"v=DKIM1; ...` to `")` without quotes
+as one string into your DNS record like this:
+
+----
+v=DKIM1; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNAD...
+----
+
+[source,bash,linenums]
+.Show DKIM key of all domains
+----
+amavisd-new showkeys
+----

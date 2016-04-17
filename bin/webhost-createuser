@@ -5,15 +5,31 @@ set -o nounset
 USER=$1
 USER_HOME=/home/${USER}
 
-adduser --home ${USER_HOME} --disabled-password --gecos "Webhosting ${USER}" ${USER}
+sudo adduser --home ${USER_HOME} --disabled-password \
+    --gecos "Web hosting ${USER}" ${USER}
 
-mkdir ${USER_HOME}/.ssh
-touch ${USER_HOME}/.ssh/authorized_keys
-mkdir -p ${USER_HOME}/apache/conf
-mkdir -p ${USER_HOME}/apache/sites
-mkdir -p ${USER_HOME}/apache/log
-mkdir -p ${USER_HOME}/apache/ssl
+sudo mkdir ${USER_HOME}/.ssh
+sudo touch ${USER_HOME}/.ssh/authorized_keys
+sudo mkdir -p ${USER_HOME}/apache/conf
+sudo mkdir -p ${USER_HOME}/apache/sites
+sudo mkdir -p ${USER_HOME}/apache/log
+sudo mkdir -p ${USER_HOME}/apache/ssl
 
 webhost-setperms ${USER}
+
+sshd_configured=$(grep -c "Match User ${USER}" /etc/ssh/sshd_config)
+if [ ${sshd_configured} -eq 0 ]
+then
+  echo >>/etc/ssh/sshd_config <<EOF
+
+Match User ${USER}
+    #AllowTcpForwarding yes
+    ChrootDirectory %h
+    ForceCommand internal-sftp
+EOF
+fi
+
+echo "0 3 * * * /home/rootaid/eu.artofcoding.rootaid/bin/mysql-backup" \
+    | sudo crontab -u ${USER} -
 
 exit 0

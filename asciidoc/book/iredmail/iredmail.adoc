@@ -1,0 +1,53 @@
+= Mail Server with iRedMail
+:author: Ralf Bensmann
+:email: <ralf@art-of-coding.eu>
+:version-label: Version
+:revnumber: 1.0
+:revdate: {docdate}
+:revremark: art of coding UG, https://blog.art-of-coding.eu
+:description: This document has no description.
+include::iredmail-conf.adoc[]
+
+= Introduction
+
+You can contact {author} at {email}.
+
+== Description
+
+{description}
+
+= Administration
+
+This section covers administrative tasks.
+
+include::administration/administration101.adoc[]
+
+include::administration/security101.adoc[]
+
+include::administration/backup101.adoc[]
+
+= Installation
+
+I describe what to do to setup a mail server based on iRedMail.
+
+include::installation/linux.adoc[]
+
+include::installation/iredmail.adoc[]
+
+include::installation/iredadmin.adoc[]
+
+= Customization
+
+What customizations have been applied after installation.
+
+include::customization/customization.adoc[]
+
+include::customization/backup.adoc[]
+
+= Migration
+
+How to perform a migration of another (old) mail server to this new one.
+
+include::migration/synchronize-data.adoc[]
+
+include::migration/checklist.adoc[]

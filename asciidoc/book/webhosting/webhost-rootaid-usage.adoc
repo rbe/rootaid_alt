@@ -1,0 +1,158 @@
+[[rootaid-usage]]
+== Rootaid Usage
+
+=== Scripts Overview
+
+[cols="a,a",options="header"]
+.Rootaid scripts
+|====
+| Script
+| Description
+
+2+^.^s| icon:globe[] Web Applications
+
+| apache-memory
+| Show Apache httpd memory usage
+
+2+^.^s| icon:globe[] Web Applications
+
+| joomlactl
+| icon:joomla[] Maintenance for Joomla
+
+| tomcatctl
+| icon:industry[] Maintenance for Apache Tomcat (multisite)
+
+| wordpressctl
+| icon:wordpress[] Maintenance for Wordpress
+
+2+^.^s| icon:database[] Databases
+
+| mysql-backup
+| Backup all databases of calling user
+
+| mysql-copy
+| Copy a certain or all databases to another host
+
+| mysql-show-grants
+| Show all grants of MySQL server
+
+2+^.^s| icon:key[] Security
+
+| ssh-tunnel
+| Establish SSH tunnel, see `ssh-tunnel.conf`
+
+| ssl-cert
+| Convenient script to call OpenSSL commands
+
+| webhost-setup-sshd
+|
+
+2+^.^s| System
+
+| topx
+|
+
+| webhost-createuser
+|
+
+| webhost-setperms
+|
+
+| webstats
+|
+
+|====
+
+=== Configuration Snippets Overview
+
+[cols="a,a,a",options="header"]
+.Apache configuration snippets
+|====
+| Snippet
+^.^| Global (G), Virtual Host (V)
+| Description
+
+| default-cache.conf
+^.^| G
+| Default HTTP response header configuration for different MIME types
+
+| dir-structure.conf
+^.^| G
+| Include Apache configuration based on rootaid's directory structure for web hosting
+
+| http-redirect-https.conf
+^.^| V
+| Redirect HTTP requests to HTTPS
+
+| pagespeed-global.conf
+^.^| G
+| Global PageSpeed configuration
+
+| pagespeed-vhost.conf
+^.^| V
+| PageSpeed configuration for virtual host
+
+| php-security.conf
+^.^| G, V
+| Security settings for PHP application
+
+| ssl.conf
+^.^| V
+| SSL configuration example
+
+|====
+
+=== Webspace
+
+[cols="a,a",options="header"]
+|====
+| Task
+| See
+
+| Apache SSL Configuration
+| <<apache-ssl-howto>>
+
+| OpenSSL Usage
+| <<openssl-howto>>
+|====
+
+==== New User
+
+.Create a new user
+[source,bash,linenums]
+----
+create-user USER
+----
+
+This will create a user and the following directory structure:
+
+----
++-- /home/USER
+    |
+    +--+ .ssh
+    |    |
+    |    +-- authorized_keys <1>
+    |
+    +--+ apache
+         |
+         +------ conf        <2>
+         |
+         +------ ssl         <3>
+         |
+         +------ sites       <4>
+----
+<1> Add SSH public keys here.
+<2> Put all website configurations here.
+<3> TLS certificates go here.
+<4> All contents is below `sites`.
+
+=== Backup
+
+Regular backups of user's MySQL database(s).
+This is automatically setup when a user is created by calling `create-user` script.
+
+[source,cron,linenums]
+----
+# m h  dom mon dow   command
+  0 0  *   *   *     /home/rootaid/eu.artofcoding.rootaid/bin/mysql-backup
+----

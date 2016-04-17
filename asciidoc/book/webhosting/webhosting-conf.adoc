@@ -1,0 +1,13 @@
+:toc: right
+:toclevels: 2
+:numbered:
+:sectnums:
+:sectnumlevels: 3
+:sectlinks:
+:icons: font
+:source-highlighter: highlight.js
+:experimental:
+
+:basedir: ../../..
+:etcdir: {basedir}/etc
+:bindir: {basedir}/bin

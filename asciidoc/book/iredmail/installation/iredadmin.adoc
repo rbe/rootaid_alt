@@ -1,0 +1,34 @@
+[Setup iRedAdmin]
+== Setup iRedAdmin
+
+[source,bash,linenums]
+.Download iRedAdmin Pro
+----
+cd /root/install
+curl -LO -u username:password \
+    http://www.iredmail.org/iRedAdmin-Pro/LDAP/2.5.0/cryptoUrlFollowsHere/iRedAdmin-Pro-LDAP-2.5.0.tar.bz2
+----
+
+[source,bash,linenums]
+.Setup iRedAdmin Pro
+----
+cd /root/install
+tar xjf iRedAdmin-Pro-LDAP-2.5.0.tar.bz2 -C /usr/share/apache2
+cd /usr/share/apache2/
+chown -R iredadmin:iredadmin iRedAdmin-Pro-LDAP-2.5.0
+chmod -R 0555 iRedAdmin-Pro-LDAP-2.5.0
+ln -s iRedAdmin-Pro-LDAP-2.5.0 iredadmin
+----
+
+[source,bash,linenums]
+.Edit iRedAdmin Pro configuration files (see iRedAdmin documentation)
+----
+vi /etc/apache2/conf-available/iredadmin.conf
+vi /etc/apache2/sites-enabled/default-ssl
+a2enmod wsgi
+service apache2 restart
+cd /usr/share/apache2/iredadmin
+cp settings.py.ldap.sample settings.py
+chown iredadmin:iredadmin settings.py
+chmod 0400 settings.py
+----

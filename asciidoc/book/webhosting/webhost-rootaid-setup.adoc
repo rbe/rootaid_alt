@@ -1,0 +1,19 @@
+[[rootaid-setup]]
+== Setup Rootaid
+
+Setting up rootaid consists of the following:
+
+* Create a user
+* Clone rootaid's repository
+** Setup regular updates
+* Add rootaid's `bin` directory to `$PATH`
+** Also for root
+* Setup directory and files for SSH
+* Setup Apache configuration for our USER's directory structure
+** Include rootaid's Apache/PHP security configuration
+
+.Setup rootaid
+[source,bash,linenums]
+----
+include::{bindir}/setup-rootaid[]
+----

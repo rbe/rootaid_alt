@@ -1,0 +1,101 @@
+== Checklist
+
+=== Migration
+
+.Setup new server
+* [x] Setup Linux
+* [x] Setup iRedMail
+* [x] Setup iRedAdmin Pro
+
+.Old server
+* [x] Setup synchronization of mail data via rsync
+** [x] This also contains Sieve scripts
+
+.Migrate configuration to new server
+* [x] Mail domains
+** [x] Domains
+** [x] User accounts
+** [ ] Mail server settings
+*** [ ] Postfix
+**** [ ] Compare configuration old/new
+**** [ ] Compare blacklists old/new
+**** [x] Max message size (100 MB)
+**** [x] Setup SMTP Port 465
+**** [x] Setup SSL
+*** [ ] amavis
+**** [ ] Compare configuration old/new
+**** [x] DKIM keys (amavis)
+*** [ ] Dovecot
+**** [ ] Compare configuration old/new
+**** [x] Setup SSL
+** [x] Mail user settings
+*** [x] Whitelists (amavis wblist)
+*** [x] Disable greylisting for certain domains
+*** [x] Synchronize Roundcube settings
+* [ ] Differences of configuration for Exchange servers
+** [ ] A user is allowed to relay for all users in a domain (LDAP schema)
+*** [ ] Custom attribute(s) in schema?
+*** [x] Custom search filter (/etc/postfix/ldap/sender_login_maps.cf)
+*** [x] Custom values in domains/users
+
+=== Test
+
+.Test
+* [x] MX
+** [x] Setup new server as primary MX for a domain and receive emails from external domains
+*** [x] 0xcafebabe.eu
+*** [x] 002.de
+
+* [x] Desktop mail client (Apple Mail, Thunderbird, Outlook)
+** [x] Configure account, login, see folders and emails
+*** [ ] Optional: Mailbox (aliases) Sent/Sent Messages/Gesendet
+** [x] Send email to another local domain
+** [x] Receive email from local domain
+** [x] Send email to external domain
+** [x] Receive email from external domain
+** [x] SMTP Port 465 (with SSL/TLS)
+** [x] SMTP Port 587 (with STARTTLS)
+
+* [x] Web mail client (Roundcube, SOGo?)
+** [x] Configure account, login, see folders and emails
+*** [ ] Optional: Mailbox (aliases) Sent/Sent Messages/Gesendet
+** [x] View and validate preferences (where they copied from old server?)
+** [x] Send email to another local domain
+** [x] Receive email from local domain
+** [x] Send email to external domain
+** [x] Receive email from external domain
+** [x] Roundcube
+*** [x] UTF-8 problem
+*** [x] When replying, no sender address set (set identity) -> synchronize identities
+
+* [x] Sieve/Autoresponder
+** [x] Setup vacation info and send email, receive notification, original email is delivered
+** [x] Setup redirect and send email, see redirect
+** [x] Setup forward and send email, see forward
+** [x] Setup filter to store an email into a folder and send email, see mail arriving in folder
+
+* [ ] Microsoft Exchange
+** [ ] Configure domain with 3 accounts
+** [ ] Configure 1 account in Exchange to relay all emails of a domain
+** [ ] Send emails from all accounts: email client -> Exchange -> mx.1ci.net -> destination
+
+=== Switch old to new server
+
+.Prepare
+* [ ] Email to customers
+
+.Perform
+* [ ] Stop old server (services)
+* [ ] Stop rsync on old server (cron)
+* [ ] Last synchronization run
+** [ ] Rsync user's data (emails)
+** [ ] Synchronize user accounts (LDAP ldif)
+** [ ] Synchronize Roundcube settings and identities (SQL)
+** [ ] Copy log files from old to new server (mail.log)
+* [ ] Rename mx-netcup.rootaid.de to mx.1ci.net
+** [ ] Reconfigure SSL certificates
+* [ ] Point DNS entry to new server
+
+=== TODO
+
+* [ ] postconf: warning: /etc/postfix/master.cf: undefined parameter: mua_client_restrictions

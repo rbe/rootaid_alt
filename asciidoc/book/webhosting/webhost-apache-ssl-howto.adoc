@@ -1,0 +1,135 @@
+[[apache-ssl-howto]]
+== Apache SSL Howto
+
+=== TLS Server Authentication
+
+==== Preparation
+
+Copy:
+
+* server certificate,
+* (optionally: CA bundle)
+* private key
+
+to a directory on the web server (`$HOME/apache/ssl`).
+
+Secure access to these files, no one except your user and `root` should be able to read,
+no one should be able to modify these files:
+
+.ls -l apache/ssl
+[source,bash,linenums]
+----
+-r-------- 1 rbe rbe 4167 Nov  2 22:58 SERVER_NAME.ca-bundle.crt
+-r-------- 1 rbe rbe 1926 Nov  2 22:58 SERVER_NAME.crt
+-r-------- 1 rbe rbe 1704 Nov  2 22:58 SERVER_NAME.key
+----
+
+==== Configuration
+
+Enable SSL and configure fully qualified paths to certificate, private key and CA bundle:
+
+[source,apache,linenums]
+----
+SSLEngine on
+SSLCertificateFile    /home/USER/apache/ssl/SERVER_NAME.crt
+SSLCertificateKeyFile /home/USER/apache/ssl/SERVER_NAME.key
+SSLCACertificateFile  /home/USER/apache/ssl/SERVER_NAME.ca-bundle.crt
+----
+
+Limit TLS protocol and ciphers to provide a secure TLS connection by skipping weak protocols and ciphers.
+
+.SSL configuration
+[source,apache,linenums]
+----
+SSLProtocol +TLSv1.2
+SSLHonorCipherOrder on
+SSLCipherSuite EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EECDH+aRSA+SHA384:EECDH+aRSA+SHA256:EECDH+aRSA+RC4:EECDH:EDH+aRSA:RC4:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS:!RC4
+----
+
+Enable https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security[HSTS]
+by always setting header `Strict-Transport-Security` to a long duration:
+
+.Set header for HSTS
+[source,apache,linenums]
+----
+Header always set Strict-Transport-Security "max-age=16070400; includeSubDomains"
+----
+
+==== Complete Example
+
+Including:
+
+* redirection from port 80/http to port 443/https
+
+./home/USER/apache/conf/example.com
+[source,apache,linenums]
+----
+<VirtualHost *:80 [1234:1234:1234:1234::1]:80>
+    ServerName www.example.com
+    Include /home/rootaid/eu.artofcoding.rootaid/apache/redirect-https.conf
+</VirtualHost>
+
+<VirtualHost 192.168.100.50:443 [1234:1234:1234:1234::1]:443>
+    ServerName www.example.com
+    DocumentRoot /home/USER/apache/sites/example.com/www
+    <IfModule mod_header.c>
+        Header always set Strict-Transport-Security "max-age=16070400; includeSubDomains"
+    </IfModule>
+    <IfModule mod_ssl.c>
+        SSLEngine on
+        SSLCertificateFile    /home/USER/apache/ssl/www.example.com.crt
+        SSLCertificateKeyFile /home/USER/apache/ssl/www.example.com.key
+        SSLCACertificateFile  /home/USER/apache/ssl/www.example.com.ca-bundle.crt
+        SSLProtocol +TLSv1.2
+        SSLHonorCipherOrder on
+        SSLCipherSuite EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EECDH+aRSA+SHA384:EECDH+aRSA+SHA256:EECDH+aRSA+RC4:EECDH:EDH+aRSA:RC4:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS:!RC4
+    </IfModule>
+</VirtualHost>
+----
+
+=== TLS Client Authentication
+
+==== Preparation
+
+Copy:
+
+* CA certificate
+
+to a directory on the web server (usually `/etc/ssl/certs` on a Debian-based system).
+
+Secure access to these files, no one except your user and `root` should be able to read,
+no one should be able to modify these files:
+
+[source,bash,linenums]
+----
+ls -l /etc/ssl/certs
+----
+
+[source,bash,linenums]
+.Example showing Certum certificates
+----
+$ ls -l /etc/ssl/certs/Certum*
+-r--r--r-- 1 root root 2807 Feb 27 10:40 /etc/ssl/certs/CertumLevelIVCA.pem
+lrwxrwxrwx 1 root root   53 Jul  3  2014 /etc/ssl/certs/Certum_Root_CA.pem -> /usr/share/ca-certificates/mozilla/Certum_Root_CA.crt
+lrwxrwxrwx 1 root root   64 Jul  3  2014 /etc/ssl/certs/Certum_Trusted_Network_CA.pem -> /usr/share/ca-certificates/mozilla/Certum_Trusted_Network_CA.crt
+----
+
+==== Configuration
+
+.Configure TLS client authentication
+[source,apache,linenums]
+----
+<VirtualHost ...:443>
+    SSLCACertificateFile /etc/ssl/certs/CertumLevelIVCA.pem <1>
+    SSLVerifyClient none <2>
+    <Location ~ "/.*(admin|login).*"> <3>
+        SSLVerifyClient require <4>
+        SSLVerifyDepth 2 <5>
+    </Location>
+</VirtualHost>
+----
+<1> Configure CA certificate to validate client certificates against
+<2> Do not request a client certificate on virtual host level
+<3> Match by location, e.g. administrative URLs
+<4> Require a client certificate
+<5> Verify two levels

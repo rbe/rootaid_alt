@@ -1,0 +1,50 @@
+=== IMAP/POP-Server Dovecot
+
+[source,bash,linenums]
+.List all mailboxes of all users
+----
+doveadm mailbox list -A
+----
+
+[source,bash,linenums]
+.Unsubscribe from mailbox
+----
+doveadm mailbox unsubscribe -u $user LearnSpam
+----
+
+[source,bash,linenums]
+.Rename mailbox Spam to Junk
+----
+doveadm mailbox rename -u $user Spam Junk
+----
+
+[source,bash,linenums]
+.Delete mailbox LearnSpam
+----
+doveadm mailbox delete -u $user LearnSpam
+----
+
+[source,bash,linenums]
+.Show mailbox status, message size
+----
+doveadm -f flow mailbox status -A -t 'messages vsize' '*'
+doveadm -f flow mailbox status -u '*@art-of-coding.eu' -t 'messages vsize' '*'
+----
+
+[source,bash,linenums]
+.Show all messages older then 30 days in user matt’s inbox
+----
+doveadm search -u matt mailbox INBOX savedbefore 30d
+----
+
+[source,bash,linenums]
+.Expunge (delete) all messages older then 7 days in matt’s Trash folder
+----
+doveadm expunge -u matt mailbox Trash savedbefore 7d
+----
+
+[source,bash,linenums]
+.List current quota status for a user (-u) or all users (-A)
+----
+doveadm quota get -u matt
+----

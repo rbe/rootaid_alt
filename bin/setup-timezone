@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -o nounset
+
+ROOTAID_ETC="$(dirname `pwd $0`)/etc"
+. ${ROOTAID_ETC}/settings
+
+echo ${TIMEZONE} >/etc/timezone
+dpkg-reconfigure --frontend noninteractive tzdata
+
+exit 0

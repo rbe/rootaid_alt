@@ -1,0 +1,15 @@
+=== Anti Spam
+
+==== Enable DKIM Signing
+
+[source,bash,linenums]
+.Enable DKIM singing in amavis
+----
+$enable_dkim_signing = 1;    # load DKIM signing code, keys defined by dkim_key
+----
+
+[source,bash,linenums]
+.Restart amavis
+----
+service amavis restart
+----

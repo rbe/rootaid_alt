@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -o nounset
+
+ROOTAID_ETC="$(dirname `pwd $0`)/etc"
+. ${ROOTAID_ETC}/settings
+
+locale-gen $LANGUAGE
+dpkg-reconfigure --frontend noninteractive locales
+update-locale
+
+exit 0

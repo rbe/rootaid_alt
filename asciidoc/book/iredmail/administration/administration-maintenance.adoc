@@ -1,0 +1,33 @@
+== Regular Maintenance
+
+[source,bash,linenums]
+.Backups (crontab -l)
+----
+0   3   *   *   *   /bin/bash /var/vmail/backup/backup_openldap.sh
+
+# iRedMail: Backup MySQL databases on 03:30 AM
+30   3   *   *   *   /bin/bash /var/vmail/backup/backup_mysql.sh
+----
+
+[source,bash,linenums]
+.Maintenance (crontab -l)
+----
+0# iRedAPD: Clean up expired tracking records hourly.
+1   *   *   *   *   python /opt/iredapd/tools/cleanup_db.py &>/dev/null
+
+# iRedAPD: Convert specified SPF DNS record of specified domain names to IP
+#          addresses/networks every 10 minutes.
+*/10   *   *   *   *   python /opt/iredapd/tools/spf_to_greylist_whitelists.py &>/dev/null
+
+# iRedMail: Cleanup Amavisd database
+1   2   *   *   *   python /opt/www/iredadmin/tools/cleanup_amavisd_db.py >/dev/null
+
+# iRedMail: Cleanup Roundcube SQL database
+2   2   *   *   *   /usr/bin/php /opt/www/roundcubemail/bin/cleandb.sh >/dev/null
+
+# iRedMail: update Awstats statistics for web
+1   */1   *   *   *   /usr/bin/perl /usr/lib/cgi-bin/awstats.pl -config=web -update >/dev/null
+
+# iRedMail: update Awstats statistics for smtp
+1   */1   *   *   *   /usr/bin/perl /usr/lib/cgi-bin/awstats.pl -config=smtp -update >/dev/null
+----

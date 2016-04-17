@@ -1,0 +1,70 @@
+== Backup & Recovery 101
+
+See <<Backup & Recovery>> for more information on our backup strategy.
+
+=== Regular Backups
+
+[source,cron]
+----
+0 1 * *   7 /usr/bin/duply /root/.duply/iredmail full_verify_purge --force
+0 1 * * 1-6 /usr/bin/duply /root/.duply/iredmail incr
+
+#0 2 * *   7 /usr/bin/duply /root/.duply/iredmail-vmail full_verify_purge --force
+#0 2 * * 1-6 /usr/bin/duply /root/.duply/iredmail-vmail incr
+
+0 3 * *   7 /usr/bin/duply /root/.duply/system full_verify_purge --force
+0 3 * * 1-6 /usr/bin/duply /root/.duply/system incr
+
+0 4 * *   7 /usr/bin/duply /root/.duply/root full_verify_purge --force
+0 4 * * 1-6 /usr/bin/duply /root/.duply/root incr
+----
+
+[Backup Maintenance]
+=== Backup Maintenance
+
+For an overview on how to use Duply run `duply usage`.
+The first thing to do is create a profile.
+Run `duply my_profile` create to create a profile named `my_profile`.
+Then configure the profile using the file `~/.duply/my_profile/conf`.
+Use `duply my_profile backup` to make backups and
+`duply my_profile restore restore_directory` to restore after configuration is complete.
+
+==== Make a backup
+
+[source,bash,linenums]
+.Perform a full backup with verify and purge old backups for "root"
+----
+duply root full_verify_purge --force
+----
+
+==== View backup status
+
+[source,bash,linenums]
+.Show status for backup set "root"
+----
+duply root status
+----
+
+==== Recover
+
+[source,bash,linenums]
+.Restore a data from its last backup
+----
+duply root restore /root_restored
+----
+
+[source,bash,linenums]
+.Restore data to a certain point in time
+----
+duply root restore /root_restored 2002/3/5
+----
+
+See `duply usage` section TIME_FORMATS:
+
+  TIME FORMATS:
+  For all time related parameters like age, max_age etc.
+  Refer to the duplicity manpage for all available formats. Here some examples:
+    2002-01-25T07:00:00+02:00 (full date time format string)
+    2002/3/5 (date string YYYY/MM/DD)
+    12D (interval, 12 days ago)
+    1h78m (interval, 1 hour 78 minutes ago)

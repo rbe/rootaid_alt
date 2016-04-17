@@ -1,0 +1,11 @@
+=== Security
+
+TIP: For availabilty of entropy through /dev/random on virtual Linux systems install `haveged`
+
+[source,bash,linenums]
+.Install haveged
+----
+apt-get install haveged
+----
+
+Needed for example when generating a GnuPG key.

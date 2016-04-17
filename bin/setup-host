@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -o nounset
+
+ROOTAID_ETC="$(dirname `pwd $0`)/etc"
+. ${ROOTAID_ETC}/settings
+
+echo "${HOSTNAME}" >/etc/hostname
+echo "${HOSTNAME}.${DOMAINNAME}" >/etc/mailname
+#echo "${IP} ${HOSTNAME}.${DOMAINNAME} ${HOSTNAME}" >>/etc/hosts
+
+exit 0

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+HOSTNAME='newserver'
+DOMAINNAME='example.com'
+
+LANGUAGE=en_US.UTF-8
+LANG=en_US.UTF-8
+LC_ALL=en_US.UTF-8
+
+TIMEZONE='Europe/Berlin'

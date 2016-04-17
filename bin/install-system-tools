@@ -1,0 +1,11 @@
+#!/bin/bash
+
+apt-get -y install sudo
+apt-get -y install haveged
+apt-get -y install htop
+apt-get -y install unzip
+apt-get -y install rsync
+apt-get -y install fail2ban
+apt-get -y install curl
+
+exit 0

@@ -1,0 +1,150 @@
+[[openssl-howto]]
+== OpenSSL Howto
+
+=== External Ressources
+
+* https://www.ssllabs.com/projects/documentation/index.html[SSLLabs Documentation]
+* https://en.wikipedia.org/wiki/Extended_Validation_Certificate#Extended_Validation_certificate_identification[Extended Validation certificate identification]
+
+=== Create a Certificate Signing Request
+
+.Contents of a CSR
+[cols="a,a,^.^a,^.^a,^.^a",options="header"]
+|====
+| Field
+| Description
+| Domain Validation (DV)
+| Organization Validation (OV)
+| Extended Validation (EV)
+
+| CN
+| Common Name:
+
+* DNS of server
+* Email adress
+| x
+| x
+| x
+
+| O
+| Organization, name of company
+| x
+| x
+| x
+
+| OU
+| Organizational Unit, e.g. "IT" or "Administration"
+| x
+| x
+| x
+
+| C
+| Country
+|
+| x
+| x
+
+| ST
+| State
+|
+| x
+| x
+
+| L
+| Locality (= city)
+|
+| x
+| x
+
+| emailAddress
+| Email address
+|
+|
+| x
+
+| postalCode
+| Postal code
+|
+|
+| x
+
+| streetAddress
+| Street address
+|
+|
+| x
+
+| serialNumber
+| HR A/B number
+|
+|
+| x
+|====
+
+.Template DV/OV
+[source,bash,linenums]
+----
+openssl req -nodes -newkey rsa:2048 -nodes \
+    -keyout SERVER_NAME.key -out SERVER_NAME.csr \
+    -subj "/C=DE/ST=STATE/L=CITY/OU=IT/O=ORGANIZATION/CN=SERVER_NAME"
+----
+
+.Template EV
+[source,bash,linenums]
+----
+openssl req -nodes -newkey rsa:2048 -nodes \
+    -keyout SERVER_NAME.key -out SERVER_NAME.csr \
+    -subj "/C=DE/ST=STATE/L=LOCALITY/postalCode=ZIPCODE/streetAddress=STREET/emailAddress=/serialNumber=HRB 123456/OU=IT/O=ORGANIZATION/CN=SERVER_NAME"
+----
+
+=== Verify, Test
+
+.Show certificates of TLS-enabled server
+[source,bash,linenums]
+----
+openssl s_client -showcerts -connect SERVER_NAME:443
+----
+
+.Verify CSR
+[source,bash,linenums]
+----
+openssl req  -text -noout -verify -in SERVER_NAME.csr
+----
+
+.Verify certificate
+[source,bash,linenums]
+----
+openssl x509 -text -noout -in SERVER_NAME.crt
+----
+
+.Verify CSR, private key and certificate by comparing MD5 checksum
+[source,bash,linenums]
+----
+openssl req  -noout -modulus -in SERVER_NAME.csr | openssl md5
+openssl rsa  -noout -modulus -in SERVER_NAME.key | openssl md5
+openssl x509 -noout -modulus -in SERVER_NAME.crt | openssl md5
+----
+
+.Verify SSL client certificate against CA
+[source,bash,linenums]
+----
+openssl verify -CAfile CertumLevelIVCA.pem -purpose sslclient SERVER_NAME.pem
+----
+
+=== PKCS12
+
+.Email certificate: export private key, certificate as PKCS#12 file
+[source,bash,linenums]
+----
+openssl pkcs12 -export \
+    -clcerts \
+    -inkey email.key -in email.pem \
+    -out email.p12 \
+    -name "Firstname Lastname"
+----
+
+.Export certificate as PKCS#12
+[source,bash,linenums]
+----
+openssl pkcs12 -export -in SERVER_NAME.crt -out SERVER_NAME.p12
+----
