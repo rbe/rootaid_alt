@@ -4,7 +4,6 @@ while getopts ":w:d:h:" opt
 do
     case "$opt" in
         d)
-            MODE="single"
             DATABASE=$OPTARG
         ;;
         h)
@@ -27,9 +26,10 @@ done
 if [ -n "${HOST}" -a -n "${DATABASE}" -a -n "${WEB}" ]
 then
     mysql-copy -h ${HOST} -d ${DATABASE}
-    rsync -e ssh -avz $HOME/apache/sites/${WEB} ${HOST}:apache/sites/${WEB}
+    rsync -e ssh -avz $HOME/apache/conf/${WEB} ${HOST}:apache/conf
+    rsync -e ssh -avz $HOME/apache/sites/${WEB}/ ${HOST}:apache/sites/${WEB}
 else
-    echo "usage: $0 -h <host> -d <datbase> -w <web, e.g. domain.tld/www>"
+    echo "usage: $0 -h <host> -d <database> -w <web, e.g. domain.tld>"
 fi
 
 exit 0
