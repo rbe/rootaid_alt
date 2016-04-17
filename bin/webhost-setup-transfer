@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -o nounset
+
+REMOTE_HOST=$1
+
+if [ -x ssh-copy-id ]
+then
+    ssh-copy-id -i ~/.ssh/id_rsa.pub ${REMOTE_HOST}
+else
+    echo "ssh-copy-id not found, please copy ssh public key yourself"
+    exit 1
+fi
+
+exit 0

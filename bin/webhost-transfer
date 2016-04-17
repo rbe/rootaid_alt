@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -o nounset
+
+while getopts ":w:d:h:" opt
+do
+    case "$opt" in
+        d)
+            MODE="single"
+            DATABASE=$OPTARG
+        ;;
+        h)
+            HOST=$OPTARG
+        ;;
+        w)
+            WEB=$OPTARG
+        ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            exit 1
+        ;;
+        :)
+            echo "Option -${OPTARG} requires an argument"
+            exit 1
+        ;;
+    esac
+done
+
+if [ x"${HOST}" -a x"${DATABASE}" -a x"${WEB}" ]
+then
+    mysql-copy -h ${HOST} -d ${DATABASE}
+    rsync -e ssh -avz $HOME/apache/sites/${WEB} ${HOST}:apache/sites/${WEB}
+fi
+
+exit 0
