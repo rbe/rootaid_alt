@@ -22,6 +22,9 @@ sudo touch ${ROOTAID_HOME}/.bashrc
 sudo mkdir ${ROOTAID_HOME}/.ssh
 sudo touch ${ROOTAID_HOME}/.ssh/authorized_keys
 
+sudo mkdir ${ROOTAID_HOME}/apache
+sudo mkdir ${ROOTAID_HOME}/apache/conf
+
 sudo chown -R ${ROOTAID_USER}:${ROOTAID_USER} ${ROOTAID_HOME}
 sudo chmod -R go=u-w ${ROOTAID_HOME}
 sudo chmod -R go= ${ROOTAID_HOME}/.ssh
