@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2011-2014 art of coding UG, http://www.art-of-coding.eu
+# Copyright (C) 2011-2015 art of coding UG, http://www.art-of-coding.eu
 # Copyright (C) 2009-2010 Informationssysteme Ralf Bensmann, http://www.bensmann.com
 #
 
@@ -140,10 +140,10 @@ _show_usage() {
     echo "$(basename $0) -s -t rootca -n myrootca -x \"country=DE state=Hamburg locality=Hamburg organization=My\ GmbH commonName=My\ Root\ CA\""
     echo
     echo "Generate self-signed certificate with own root CA"
-    echo "$(basename $0) -s -t self -r myrootca -n testfactportal.factpartner.de -x \"country=DE state=Hamburg locality=Hamburg organization=My\ GmbH\""
+    echo "$(basename $0) -s -t self -r myrootca -n www.example.de -x \"country=DE state=Hamburg locality=Hamburg organization=My\ GmbH\""
     echo
     echo "Generate simple self-signed certificate"
-    echo "$(basename $0) -s -t self -n testfactportal.factpartner.de -x \"country=DE state=Hamburg locality=Hamburg organization=My\ GmbH\""
+    echo "$(basename $0) -s -t self -n www.example.de -x \"country=DE state=Hamburg locality=Hamburg organization=My\ GmbH\""
     echo ""
 }
 
