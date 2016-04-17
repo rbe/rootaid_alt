@@ -30,6 +30,8 @@ if [ x"${HOST}" -a x"${DATABASE}" -a x"${WEB}" ]
 then
     mysql-copy -h ${HOST} -d ${DATABASE}
     rsync -e ssh -avz $HOME/apache/sites/${WEB} ${HOST}:apache/sites/${WEB}
+else
+    echo "usage: $0 -h <host> -d <datbase> -w <web, e.g. domain.tld/www>"
 fi
 
 exit 0

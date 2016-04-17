@@ -7,9 +7,20 @@ USER_HOME=/home/${USER}
 
 sudo adduser --home ${USER_HOME} --disabled-password \
     --gecos "Web hosting ${USER}" ${USER}
+passwd ${USER}
 
 sudo mkdir ${USER_HOME}/.ssh
 sudo touch ${USER_HOME}/.ssh/authorized_keys
+sudo ssh-keygen -t rsa -N "" -C "User ${USER}" -f ${USER_HOME}/.ssh/id_rsa
+
+sudo touch ${USER_HOME}/.my.cnf
+echo >${USER}/.my.cnf <<EOF
+[client]
+user=root
+password=
+socket=/var/run/mysqld/mysqld.sock
+EOF
+
 sudo mkdir -p ${USER_HOME}/apache/conf
 sudo mkdir -p ${USER_HOME}/apache/sites
 sudo mkdir -p ${USER_HOME}/apache/log
