@@ -8,6 +8,14 @@ done
 echo -n "Average percentage of total memory: "
 echo "scale=2; $total/$(ps aux | grep -c apache2)" | bc
 
-ps -ylC apache2 | awk '{x += $8;y += 1} END {print "Apache Memory Usage (MB): "x/1024; print "Average Proccess Size (MB): "x/((y-1)*1024)}'
+ps -ylC apache2 | awk '{
+    x += $8
+    y += 1
+}
+END {
+    print "Apache Memory Usage (MB): "x/1024
+    print "Average Proccess Size (MB): "x/((y-1)*1024)
+}
+'
 
 exit 0
