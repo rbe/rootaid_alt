@@ -132,20 +132,26 @@ This will create a user and the following directory structure:
     |
     +--+ .ssh
     |    |
-    |    +-- authorized_keys <1>
+    |    +-- id_rsa  <1>
+    |    |
+    |    +-- id_rsa.pub  <2>
+    |    |
+    |    +-- authorized_keys  <3>
     |
     +--+ apache
          |
-         +------ conf        <2>
+         +------ conf  <4>
          |
-         +------ ssl         <3>
+         +------ ssl  <5>
          |
-         +------ sites       <4>
+         +------ sites  <6>
 ----
-<1> Add SSH public keys here.
-<2> Put all website configurations here.
-<3> TLS certificates go here.
-<4> All contents is below `sites`.
+<1> SSH private key of USER. Keep it private!
+<2> SSH public key of USER.
+<3> Add SSH public keys here.
+<4> Put all website configurations here.
+<5> TLS certificates go here.
+<6> All contents is below `sites`.
 
 === Backup
 
