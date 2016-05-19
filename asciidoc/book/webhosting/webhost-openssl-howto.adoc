@@ -1,11 +1,6 @@
 [[openssl-howto]]
 == OpenSSL Howto
 
-=== External Ressources
-
-* https://www.ssllabs.com/projects/documentation/index.html[SSLLabs Documentation]
-* https://en.wikipedia.org/wiki/Extended_Validation_Certificate#Extended_Validation_certificate_identification[Extended Validation certificate identification]
-
 === Create a Certificate Signing Request
 
 .Contents of a CSR

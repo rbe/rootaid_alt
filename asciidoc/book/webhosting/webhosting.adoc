@@ -26,6 +26,13 @@ include::webhost-rootaid-usage.adoc[]
 
 This section covers administrative tasks.
 
+== Resources
+
+* https://mozilla.github.io/server-side-tls/ssl-config-generator/[Mozilla SSL Configuration Generator]
+* https://wiki.mozilla.org/Security/Server_Side_TLS[Mozilla Wiki, Security/Server Side TLS]
+* https://www.ssllabs.com/projects/documentation/index.html[SSLLabs Documentation]
+* https://en.wikipedia.org/wiki/Extended_Validation_Certificate#Extended_Validation_certificate_identification[Extended Validation certificate identification]
+
 include::webhost-apache-ssl-howto.adoc[]
 
 include::webhost-openssl-howto.adoc[]
