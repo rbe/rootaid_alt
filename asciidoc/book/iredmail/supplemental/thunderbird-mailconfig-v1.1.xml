@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<clientConfig version="1.1">
+    <emailProvider id="example.com">
+      <domain>example.com</domain>
+      <domain>example.net</domain>
+
+      <displayName>1Ci Mail</displayName>
+      <displayShortName>1Ci</displayShortName>
+
+      <incomingServer type="pop3">
+         <hostname>mx.1ci.net</hostname>
+         <port>995</port>
+         <socketType>SSL</socketType>
+         <username>%EMAILLOCALPART%</username>
+         <!-- "password-cleartext", "plain" -->
+         <authentication>password-cleartext</authentication>
+         <pop3>
+            <checkInterval minutes="15"/><!-- not yet supported -->
+         </pop3>
+      </incomingServer>
+
+      <outgoingServer type="smtp">
+         <hostname>mx.1ci.net</hostname>
+         <port>587</port>
+         <socketType>STARTTLS</socketType>
+         <username>%EMAILLOCALPART%</username>
+         <authentication>password-cleartext</authentication>
+         <restriction>client-IP-address</restriction>
+         <useGlobalPreferredServer>true</useGlobalPreferredServer>
+      </outgoingServer>
+
+    </emailProvider>
+
+    <clientConfigUpdate url="https://www.example.com/config/mozilla.xml" />
+
+</clientConfig>
