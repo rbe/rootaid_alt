@@ -2,8 +2,8 @@
 
 set -o nounset
 
-ROOTAID_USER='rootaid'
-ROOTAID_HOME='/home/${ROOTAID_USER}'
+ROOTAID_USER="rootaid"
+ROOTAID_HOME="/home/${ROOTAID_USER}"
 
 sudo addgroup --gid 1003 ${ROOTAID_USER}
 sudo adduser --uid 1007 --ingroup ${ROOTAID_USER} --home ${ROOTAID_HOME} \
@@ -48,10 +48,10 @@ EOF
 cat >>/etc/apache2/apache2.conf <<EOF
 
 # Rootaid
-Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/rootaid-default-dir-structure.conf
-Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/rootaid-default-cache.conf
-Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/rootaid-pagespeed-global.conf
-Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/rootaid-php-security.conf
+Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/dir-structure.conf
+Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/default-cache.conf
+Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/pagespeed-global.conf
+Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/php-security.conf
 EOF
 
 exit 0
