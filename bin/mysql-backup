@@ -19,7 +19,7 @@ do
     db=${db/@002d/-}
     f="${BACKUP_DEST}/${db}.sql.gz"
     echo "Backing up MySQL database ${db} to ${f}"
-    mysqldump -B ${db} | gzip -9 > ${f}
+    mysqldump --events -B ${db} | gzip -9 > ${f}
 done
 
 # Fix permissions.
