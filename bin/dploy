@@ -1,0 +1,363 @@
+#!/bin/bash
+
+#
+# Copyright (C) 2016 art of coding UG, https://www.art-of-coding.eu
+#
+
+e() {
+    echo "$(basename $0): $*"
+}
+
+#
+# Initialization
+#
+
+init_sudo() {
+    local sudoersd="/etc/sudoers.d/${PROJECT_NAME}"
+    e "Setting up sudo rules for ${PROJECT_NAME} in ${sudoersd}"
+    sudo cat >${sudoersd} <<EOF
+${PROJECT_USER} ALL=(ALL) ALL, NOPASSWD: /usr/sbin/service, /bin/mkdir, /bin/mv, /bin/rm, /bin/ln, /usr/bin/touch, /bin/chown, /bin/chmod, /bin/cat, /usr/bin/apt-key
+EOF
+}
+
+setup_debian_apt() {
+    if [ -f /etc/os-release ]
+    then
+        . /etc/os-release
+    else
+        e "Debian only: /etc/os-release not found"
+        exit 1
+    fi
+    if [ "${ID}" -eq "debian" ]
+    then
+        if [ "${VERSION_ID}" -eq 8 ]
+        then
+            sudo cat >/etc/apt/sources.list.d/jessie-backports.list <<EOF
+deb http://http.debian.net/debian jessie-backports main
+EOF
+        fi
+        sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886
+        sudo cat >/etc/apt/sources.list.d/webupd8team.list <<EOF
+deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main
+deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main
+EOF
+    fi
+}
+
+install_software_debian() {
+    apt-get -q -y update
+    apt-get -q -y install ssh
+    apt-get -q -y install git
+    apt-get -q -y install unzip
+    apt-get -q -y install oracle-java8-\*
+    apt-get -q -y install maven=3.3\*
+}
+
+setup_ubuntu_apt() {
+    sudo add-apt-repository ppa:andrei-pozolotin/maven3
+    sudo apt-get -q update
+}
+
+install_software_ubuntu() {
+    apt-get -q -y update
+    apt-get -q -y install ssh
+    apt-get -q -y install git
+    apt-get -q -y install unzip
+    apt-get -q -y install oracle-java8-\*
+    apt-get -q -y install maven3
+}
+
+init_ssh_keys() {
+    local hostname=$1
+    ssh-keygen -R ${hostname}
+    ssh-keyscan ${hostname} >>${HOME}/.ssh/known_hosts
+    local sshprivkeyfile="${HOME}/.ssh/id_rsa_dploy"
+    ssh-keygen -t rsa -b 4096 -N "" -f ${sshprivkeyfile}
+    cat >>${HOME}/.ssh/config <<EOF
+Host ${hostname}
+    User git
+    IdentityFile ${sshprivkeyfile}
+EOF
+    e "*"
+    e "* Please send this SSH public key to developer -- BEGIN"
+    e "*"
+    e ""
+    cat ${sshprivkeyfile}.pub
+    e "*"
+    e "* Please send this SSH public key to developer -- END"
+    e "*"
+}
+
+#
+# Source Code Management
+#
+
+clone_gitrepo() {
+    local branch=$1
+    local repodir=$2
+    if [ -d ${repodir}/.git ]
+    then
+        e "Updating branch ${PROJECT_BUILD_NUMBER} in ${repodir}"
+        pushd ${repodir} >/dev/null
+        git pull 1>>git.log 2>&1
+        popd >/dev/null
+    else
+        e "Cloning branch ${PROJECT_BUILD_NUMBER} in ${repodir}"
+        set -o nounset # DO NOT REMOVE THIS OPTION
+        mkdir -p ${repodir} 2>/dev/null
+        local dirname_repodir=$(dirname ${repodir})
+        pushd ${dirname_repodir} >/dev/null
+        local base_repodir=$(basename ${repodir})
+        [ -d ${base_repodir} ] && rm -rf ${base_repodir}
+        git clone --depth 1 --branch ${branch} --single-branch ${PROJECT_REPO} ${base_repodir} 1>git.log 2>&1
+        popd >/dev/null
+        if [ $? -gt 0 ]
+        then
+            e "Error clong repository"
+            exit 1
+        fi
+    fi
+}
+
+#
+# Build and deploy
+#
+
+unpack_build_artifacts() {
+    local builddir=$1
+    local deploydir=$2
+    set -o nounset # DO NOT REMOVE THIS OPTION
+    rm -rf ${deploydir}
+    mkdir ${deploydir} 2>/dev/null
+    for targetdir in $(find ${builddir} -type d -name target)
+    do
+        for pa in ${PROJECT_ARTIFACTS[@]}
+        do
+            [ -n "${VERBOSE}" ] && e "Looking for ${pa} files in ${targetdir}"
+            artifacts=($(find ${targetdir} -maxdepth 1 -type f -name ${pa}))
+            if [ ${#artifacts[@]} -gt 0 ]
+            then
+                for a in ${artifacts[@]}
+                do
+                    [ -n "${VERBOSE}" ] && e "  Copying ${a} to ${deploydir}"
+                    cp ${a} ${deploydir}
+                done
+            fi
+        done
+    done
+    e "Deployed ${PROJECT_NAME} version ${PROJECT_BUILD_NUMBER} to ${deploydir}"
+    [ -n "${VERBOSE}" ] && e "Looking for dist.zip files in ${deploydir}"
+    distzips=($(find ${deploydir} -maxdepth 1 -type f -name \*-dist.zip))
+    if [ ${#distzips[@]} -gt 0 ]
+    then
+        e "Unpacking dist.zip files in ${deploydir}"
+        for f in ${distzips[@]}
+        do
+            [ -n "${VERBOSE}" ] && e "  Unzipping ${f} to ${deploydir}"
+            unzip -q ${f} -d ${deploydir}
+            rm ${f}
+        done
+    fi
+}
+
+build_review_release() {
+    local branch=$1
+    local confdir=${PROJECT_DEPLOY_REVIEW}/conf
+    e "Creating empty configuration directory ${confdir}"
+    mkdir ${confdir} 2>/dev/null
+    local builddir="${PROJECT_DEPLOY_REVIEW}/${branch}/build"
+    clone_gitrepo ${branch} ${builddir}
+    pushd ${builddir} >/dev/null
+    e "Building branch ${PROJECT_BUILD_NUMBER} in ${builddir}"
+    local project_mvn_repo=${builddir}/.m2
+    rm -rf ${project_mvn_repo}
+    mkdir ${project_mvn_repo} 2>/dev/null
+    local MAVEN_LOCAL_REPO="-Dmaven.repo.local=${project_mvn_repo}"
+    mvn ${MVN_OPTIONS} -l maven.log ${MAVEN_LOCAL_REPO} ${MVN_SETTINGS} ${MVN_PROFILES_REVIEW} help:active-profiles clean verify
+    if [ $? -eq 0 ]
+    then
+        local deploydir="${PROJECT_DEPLOY_REVIEW}/${branch}/deploy"
+        unpack_build_artifacts ${builddir} ${deploydir}
+    fi
+    popd >/dev/null
+}
+
+build_prod_release() {
+    local branch=$1
+    local confdir=${PROJECT_DEPLOY_PRODUCTION}/conf
+    e "Creating empty configuration directory ${confdir}"
+    mkdir ${confdir} 2>/dev/null
+    local builddir="${PROJECT_DEPLOY_PRODUCTION}/${branch}/build"
+    clone_gitrepo ${branch} ${builddir}
+    pushd ${builddir} >/dev/null
+    e "Building branch ${PROJECT_BUILD_NUMBER} in ${builddir}"
+    local project_mvn_repo=${builddir}/.m2
+    rm -rf ${project_mvn_repo}
+    mkdir ${project_mvn_repo} 2>/dev/null
+    local MAVEN_LOCAL_REPO="-Dmaven.repo.local=${project_mvn_repo}"
+    mvn ${MVN_OPTIONS} -l maven.log ${MAVEN_LOCAL_REPO} ${MVN_SETTINGS} ${MVN_PROFILES_PRODUCTION} ${MVN_SKIPTESTS} help:active-profiles clean verify
+    if [ $? -eq 0 ]
+    then
+        local deploydir="${PROJECT_DEPLOY_PRODUCTION}/${branch}/deploy"
+        unpack_build_artifacts ${builddir} ${deploydir}
+    fi
+    popd >/dev/null
+}
+
+#
+# dploy
+#
+
+show_usage() {
+    e ""
+    e "$(basename $0)"
+    e "    -h show help and exit"
+    e "  or"
+    e "    -p <project>"
+    e "    -c <alternate path to dploy.project.conf>"
+    e "    -v verbose output"
+    e "  and"
+    e "    -i <sudo | ssh | setup-debian | software | all>"
+    e "  or"
+    e "    -b <build number, e.g. HEAD or release/1.1>"
+    e "    -t <build type = review | production>"
+    e ""
+}
+
+show_vars() {
+    e ""
+    e "Variables:"
+    e "  VERBOSE=${VERBOSE}"
+    e "  PROJECT_NAME=${PROJECT_NAME}"
+    e "  DPLOYCONF=${DPLOYCONF}"
+    e "  PROJECT_HOME=${PROJECT_HOME}"
+    e "  PROJECT_BUILD_TYPE=${PROJECT_BUILD_TYPE}"
+    e "  PROJECT_BUILD_NUMBER=${PROJECT_BUILD_NUMBER}"
+    e "  PROJECT_USER=${PROJECT_USER}"
+    e "  PROJECT_GROUP=${PROJECT_GROUP}"
+    e "  MVN_SETTINGS=${MVN_SETTINGS}"
+    e "  MVN_OPTIONS=${MVN_OPTIONS}"
+    e "  MVN_PROFILES_REVIEW=${MVN_PROFILES_REVIEW}"
+    e "  MVN_PROFILES_PRODUCTION=${MVN_PROFILES_PRODUCTION}"
+    e "  MVN_SKIPTESTS=${MVN_SKIPTESTS}"
+    e ""
+}
+
+VERBOSE=
+DPLOYCONF=
+INITWHAT=
+PROJECT_NAME=
+
+while getopts ":c:b:hi:p:t:v" opt
+do
+    case "$opt" in
+        b)
+            PROJECT_BUILD_NUMBER=${OPTARG}
+        ;;
+        c)
+            DPLOYCONF=${OPTARG}
+        ;;
+        h)
+            show_usage
+            exit 0
+        ;;
+        i)
+            INITWHAT=${OPTARG}
+        ;;
+        p)
+            PROJECT_NAME=${OPTARG}
+        ;;
+        t)
+            PROJECT_BUILD_TYPE=${OPTARG}
+        ;;
+        v)
+            VERBOSE=yes
+        ;;
+        \?)
+            e "Invalid option: -${OPTARG}" >&2
+            exit 1
+        ;;
+        :)
+            e "Option -${OPTARG} requires an argument"
+            exit 1
+        ;;
+    esac
+done
+
+if [ -z "${PROJECT_NAME}" ]
+then
+    show_usage
+    e "Project name missing"
+    exit 1
+fi
+
+DPLOYCONF="${DPLOYCONF:-dploy.${PROJECT_NAME}.conf}"
+if [ -f ${DPLOYCONF} ]
+then
+    . ${DPLOYCONF}
+else
+    e "Project configuration ${DPLOYCONF} not found"
+    exit 1
+fi
+
+# Project owner
+PROJECT_USER="${PROJECT_USER:-$(id -u -n)}"
+PROJECT_GROUP="${PROJECT_GROUP:-$(id -g -n)}"
+PROJECT_REPO="${PROJECT_REPO:-git@${PROJECT_REPO_HOST}:${PROJECT_REPO_USER}/${PROJECT_NAME}.git}"
+# Project deployment
+PROJECT_HOME="${PROJECT_HOME:-$(pwd)/${PROJECT_NAME}}"
+PROJECT_DEPLOY="${PROJECT_HOME}"
+PROJECT_DEPLOY_REVIEW="${PROJECT_DEPLOY_REVIEW:-${PROJECT_DEPLOY}/review}"
+PROJECT_DEPLOY_PRODUCTION="${PROJECT_DEPLOY_PRODUCTION:-${PROJECT_DEPLOY}/production}"
+PROJECT_ARTIFACTS=${PROJECT_ARTIFACTS:-(*-dist.zip *.war *.jar)}
+# Maven
+MVN_SETTINGS="${MVN_SETTINGS:--s settings.xml}"
+MVN_OPTIONS="${MVN_OPTIONS:-}"
+MVN_PROFILES_REVIEW="${MVN_PROFILES_REVIEW:--P ${PROJECT_NAME}.development,${PROJECT_NAME}.integrationtest,${PROJECT_NAME}.delivery}"
+MVN_PROFILES_PRODUCTION="${MVN_PROFILES_PRODUCTION:--P ${PROJECT_NAME}.production,${PROJECT_NAME}.delivery}"
+MVN_SKIPTESTS="-DskipTests=true -Dmaven.test.skip=true"
+
+if [ -n "${PROJECT_NAME}" ]
+then
+    show_vars
+fi
+
+if [ -n "${INITWHAT}" ]
+then
+    case "${INITWHAT}" in
+        all)
+            init_sudo
+            init_ssh_keys
+            install_software_debian
+        ;;
+        sudo)
+            init_sudo
+        ;;
+        ssh)
+            init_ssh_keys ${PROJECT_REPO_HOST}
+        ;;
+        setup-debian)
+            setup_debian_apt
+        ;;
+        software)
+            install_software_debian
+        ;;
+    esac
+fi
+
+if [ -n "${PROJECT_BUILD_TYPE}" -a -n "${PROJECT_BUILD_NUMBER}" ]
+then
+    case "${PROJECT_BUILD_TYPE}" in
+        review)
+            build_review_release ${PROJECT_BUILD_NUMBER}
+        ;;
+        production)
+            build_production_release ${PROJECT_BUILD_NUMBER}
+        ;;
+        *)
+            e "Unknown build type ${PROJECT_BUILD_TYPE}"
+        ;;
+    esac
+fi
+
+exit 0

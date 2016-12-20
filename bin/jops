@@ -1,0 +1,102 @@
+#!/bin/bash
+
+MODE=$1
+
+JOPS_CONF=$2
+if [ -z "${JOPS_CONF}" ]
+then
+    JOPS_CONF=jdrive.conf
+fi
+if [ ! -f ${JOPS_CONF} ]
+then
+    echo "Cannot find or read ${JOPS_CONF}"
+    exit 1
+fi
+
+#
+# DO NOT CHANGE SETTINGS BELOW
+#
+
+. ${JOPS_CONF}
+JOPS_CONF_DIR="$(pushd "`dirname ${JOPS_CONF}`" >/dev/null ; pwd ; popd >/dev/null)"
+APP_HOME="$(dirname ${JOPS_CONF_DIR})"
+APP_PROFILE_PROPERTIES="$(dirname ${APP_HOME})/production/${APP_NAME}.properties"
+APP_OPTS="--spring.config.location=classpath:/application.properties,${APP_PROFILE_PROPERTIES}"
+APP_LOGFILE="${APP_LOGDIR}/${APP_NAME}.log"
+
+e() {
+    echo "jops: $*"
+}
+
+show_vars() {
+    e "JOPS_CONF_DIR=${JOPS_CONF_DIR}"
+    e "APP_NAME=${APP_NAME}"
+    e "APP_VERSION=${APP_VERSION}"
+    e "APP_HOME=${APP_HOME}"
+    e "APP_USER=${APP_USER}"
+    e "APP_ARTIFACT=${APP_ARTIFACT}"
+    e "JAVA_OPTS=${JAVA_OPTS}"
+    e "APP_OPTS=${APP_OPTS}"
+    e "APP_LOGFILE=${APP_LOGFILE}"
+}
+
+case "${MODE}" in
+    start)
+        e "Starting ${APP_NAME}..."
+        show_vars
+        echo sudo touch ${APP_LOGFILE}
+        echo sudo chown ${APP_USER}:${APP_GROUP} ${APP_LOGFILE}
+        logredir="2>${APP_LOGFILE} 1>&2"
+        export APP_HOME
+        echo sudo -Eu ${APP_USER} sh -c "cd ${APP_HOME} ; java ${JAVA_OPTS} -jar ${APP_ARTIFACT} ${APP_OPTS} ${logredir} &"
+    ;;
+    stop)
+        e "Stopping ${APP_NAME}..."
+        pid=$(ps ax | grep ${APP_NAME} | grep java | grep -v grep | awk '{print $1}')
+        if [ -z "${pid}" ]
+        then
+            e "Cannot find process id for ${APP_NAME}"
+        elif [ -n "${pid}" ]
+        then
+            kill ${pid}
+        else
+            echo "No pid"
+        fi
+    ;;
+    encrypt)
+        e "*"
+        e "* WARNING"
+        e "*"
+        e "* YOU ARE ABOUT TO CHANGE ENCRYPTION OF CONFIGURATION VALUES."
+        e "* THIS MAY BREAK EXISTING PREVIOUSLY ENCRYPTED VALUES AND MAY HARM YOUR SYSTEM."
+        e "*"
+        e "* PROCEED ONLY IF YOU ARE SURE ABOUT WHAT YOU'RE DOING!"
+        e "*"
+        read -p "* Go ahead (y/n)?" goahead
+        if [ "${goahead}" = "y" ]
+        then
+            declare -A pvalue
+            encrypted_properties=$(grep ENC ${APP_HOME}/conf/${APP_NAME}.properties)
+            for ep in ${encrypted_properties}
+            do
+                pname=${ep%=*}
+                read -p "Enter value for ${pname}: " ${pvalue[pname]}
+            done
+            for k in ${!pvalue[@]}
+            do
+                pushd ${APP_HOME}/lib >/dev/null
+                jasypt="java -jar camel-jasypt-${version.org.apache.camel}.jar"
+                jasyptopt="-c encrypt -p ${ENCRYPTION_PASSWORD} -a ${ENCRYPTION_ALGORITHM}"
+                encrypted_value=$(${jasypt} ${jasyptopt} -i ${pvalue[$k]})
+                echo "${k}=ENC(${encrypted_value})"
+                popd >/dev/null
+            done
+        fi
+    ;;
+    *)
+        echo "Usage: $0 { start | stop | encrypt } [<path to jdrive.conf>]"
+        exit 1
+    ;;
+esac
+
+exit 0
