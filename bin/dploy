@@ -71,7 +71,7 @@ install_software_ubuntu() {
 # Source Code Management
 #
 
-init_ssh_keys() {
+init_dploy_ssh_key() {
     local hostname=$1
     ssh-keygen -R ${hostname}
     ssh-keyscan ${hostname} >>${HOME}/.ssh/known_hosts
@@ -92,9 +92,16 @@ EOF
     e "*"
 }
 
+init_repo_ssh_key() {
+    local hostname=$1
+    ssh-keygen -R ${hostname}
+    ssh-keyscan ${hostname} >>${HOME}/.ssh/known_hosts
+}
+
 clone_gitrepo() {
     local branch=$1
     local repodir=$2
+    init_repo_ssh_key
     if [ -d ${repodir}/.git ]
     then
         e "Updating branch ${PROJECT_BRANCH} in ${repodir}"
@@ -328,7 +335,7 @@ then
     case "${INITWHAT}" in
         all)
             init_sudo
-            init_ssh_keys
+            init_dploy_ssh_keys
             install_software_debian
         ;;
         sudo)
