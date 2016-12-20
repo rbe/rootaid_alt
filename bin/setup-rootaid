@@ -2,7 +2,7 @@
 
 set -o nounset
 
-. setup-rootaid.conf
+[ -f setup-rootaid.conf ] && . setup-rootaid.conf
 ROOTAID_USER=${ROOTAID_USER:-"rootaid"}
 ROOTAID_HOME="${ROOTAID_HOME:-/home/${ROOTAID_USER}}"
 ROOTAID_UID=${ROOTAID_UID:-1007}
