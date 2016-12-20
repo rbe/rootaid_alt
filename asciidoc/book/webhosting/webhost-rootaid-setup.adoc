@@ -15,5 +15,15 @@ Setting up rootaid consists of the following:
 .Setup rootaid
 [source,bash,linenums]
 ----
-include::{bindir}/setup-rootaid[]
+curl -LO https://bitbucket.org/artofcoding/eu.artofcoding.rootaid/raw/master/bin/setup-rootaid
+chmod +x setup-rootaid
+./setup-rootaid
+----
+
+=== Automatic Updates
+
+.crontab of user rootaid
+[source,bash,linenums]
+----
+0 * * * * ( cd eu.artofcoding.rootaid ; git pull )
 ----
