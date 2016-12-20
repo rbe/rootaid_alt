@@ -1,36 +1,15 @@
 #!/bin/bash
 
-MODE=$1
-
-JOPS_CONF=$2
-if [ -z "${JOPS_CONF}" ]
-then
-    JOPS_CONF=jops.conf
-fi
-if [ ! -f ${JOPS_CONF} ]
-then
-    echo "Cannot find or read ${JOPS_CONF}"
-    exit 1
-fi
-
-#
-# DO NOT CHANGE SETTINGS BELOW
-#
-
-. ${JOPS_CONF}
-JOPS_CONF_DIR="$(pushd "`dirname ${JOPS_CONF}`" >/dev/null ; pwd ; popd >/dev/null)"
-APP_HOME="$(dirname ${JOPS_CONF_DIR})"
-APP_PROFILE=${APP_PROFILE:-production}
-APP_PROFILE_PROPERTIES="$(pushd ${APP_HOME}/../../../../${APP_PROFILE}/conf >/dev/null ; pwd ; popd >/dev/null)"
-APP_OPTS="--spring.config.location=classpath:/application.properties,${APP_PROFILE_PROPERTIES}/${APP_NAME}.properties"
-APP_LOGFILE="${APP_LOGDIR}/${APP_NAME}.log"
-
 e() {
     echo "jops: $*"
 }
 
+show_usage() {
+    echo "Usage: $0 { start | stop | encrypt } [<path to jdrive.conf>]"
+}
+
 show_vars() {
-    e "JOPS_CONF_DIR=${JOPS_CONF_DIR}"
+    e "JOPS_CONF=${JOPS_CONF}"
     e "APP_NAME=${APP_NAME}"
     e "APP_VERSION=${APP_VERSION}"
     e "APP_HOME=${APP_HOME}"
@@ -41,18 +20,41 @@ show_vars() {
     e "APP_LOGFILE=${APP_LOGFILE}"
 }
 
+MODE=$1
+
+JOPS_CONF=$2
+if [ -z "${JOPS_CONF}" ]
+then
+    JOPS_CONF="$(pwd)/jops.conf"
+fi
+if [ ! -f ${JOPS_CONF} ]
+then
+    echo "Cannot find or read ${JOPS_CONF}"
+    exit 1
+fi
+
+. ${JOPS_CONF}
+JOPS_CONF_DIR="$(pushd "`dirname ${JOPS_CONF}`" >/dev/null ; pwd ; popd >/dev/null)"
+APP_HOME="$(dirname ${JOPS_CONF_DIR})"
+APP_USER=${APP_USER:-$(id -u)}
+APP_GROUP=${APP_GROUP:-$(id -g)}
+APP_PROFILE=${APP_PROFILE:-production}
+APP_PROFILE_PROPERTIES="$(pushd ${APP_HOME}/../../../../${APP_PROFILE}/conf >/dev/null ; pwd ; popd >/dev/null)"
+APP_OPTS="--spring.config.location=classpath:/application.properties,${APP_PROFILE_PROPERTIES}/${APP_NAME}.properties"
+APP_LOGFILE="${APP_LOGDIR}/${APP_NAME}.log"
+
 case "${MODE}" in
     start)
-        e "Starting ${APP_NAME}..."
+        echo "Starting ${APP_NAME}..."
         show_vars
         sudo touch ${APP_LOGFILE}
         sudo chown ${APP_USER}:${APP_GROUP} ${APP_LOGFILE}
-        logredir="2>${APP_LOGFILE} 1>&2"
+        logredir="2>>${APP_LOGFILE} 1>&2"
         export APP_HOME
         sudo -Eu ${APP_USER} sh -c "cd ${APP_HOME} ; java ${JAVA_OPTS} -jar ${APP_ARTIFACT} ${APP_OPTS} ${logredir} &"
     ;;
     stop)
-        e "Stopping ${APP_NAME}..."
+        echo "Stopping ${APP_NAME}..."
         pid=$(ps ax | grep ${APP_NAME} | grep java | grep -v grep | awk '{print $1}')
         if [ -z "${pid}" ]
         then
@@ -95,7 +97,7 @@ case "${MODE}" in
         fi
     ;;
     *)
-        echo "Usage: $0 { start | stop | encrypt } [<path to jdrive.conf>]"
+        show_usage
         exit 1
     ;;
 esac
