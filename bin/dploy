@@ -164,7 +164,7 @@ build_review_release() {
     local branch=$1
     local confdir=${PROJECT_DEPLOY_REVIEW}/conf
     e "Creating empty configuration directory ${confdir}"
-    mkdir ${confdir} 2>/dev/null
+    mkdir -p ${confdir} 2>/dev/null
     local builddir="${PROJECT_DEPLOY_REVIEW}/${branch}/build"
     clone_gitrepo ${branch} ${builddir}
     pushd ${builddir} >/dev/null
@@ -187,7 +187,7 @@ build_production_release() {
     local branch=$1
     local confdir=${PROJECT_DEPLOY_PRODUCTION}/conf
     e "Creating empty configuration directory ${confdir}"
-    mkdir ${confdir} 2>/dev/null
+    mkdir -p ${confdir} 2>/dev/null
     local builddir="${PROJECT_DEPLOY_PRODUCTION}/${branch}/build"
     clone_gitrepo ${branch} ${builddir}
     pushd ${builddir} >/dev/null
@@ -221,7 +221,7 @@ show_usage() {
     e "  and"
     e "    -i <sudo | ssh | setup-debian | software | all>"
     e "  or"
-    e "    -b <build number, e.g. HEAD or release/1.1>"
+    e "    -b <build number, e.g. master or release/1.1>"
     e "    -t <build type = review | production>"
     e ""
 }
@@ -241,7 +241,6 @@ show_vars() {
     e "  MVN_OPTIONS=${MVN_OPTIONS}"
     e "  MVN_PROFILES_REVIEW=${MVN_PROFILES_REVIEW}"
     e "  MVN_PROFILES_PRODUCTION=${MVN_PROFILES_PRODUCTION}"
-    e "  MVN_SKIPTESTS=${MVN_SKIPTESTS}"
     e ""
 }
 
