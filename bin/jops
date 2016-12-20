@@ -5,7 +5,7 @@ MODE=$1
 JOPS_CONF=$2
 if [ -z "${JOPS_CONF}" ]
 then
-    JOPS_CONF=jdrive.conf
+    JOPS_CONF=jops.conf
 fi
 if [ ! -f ${JOPS_CONF} ]
 then
@@ -20,7 +20,8 @@ fi
 . ${JOPS_CONF}
 JOPS_CONF_DIR="$(pushd "`dirname ${JOPS_CONF}`" >/dev/null ; pwd ; popd >/dev/null)"
 APP_HOME="$(dirname ${JOPS_CONF_DIR})"
-APP_PROFILE_PROPERTIES="$(dirname ${APP_HOME})/production/${APP_NAME}.properties"
+APP_PROFILE=${APP_PROFILE:-production}
+APP_PROFILE_PROPERTIES="$(dirname ${APP_HOME})/${APP_PROFILE}/conf/${APP_NAME}.properties"
 APP_OPTS="--spring.config.location=classpath:/application.properties,${APP_PROFILE_PROPERTIES}"
 APP_LOGFILE="${APP_LOGDIR}/${APP_NAME}.log"
 
