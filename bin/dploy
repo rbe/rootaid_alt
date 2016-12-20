@@ -101,7 +101,7 @@ init_repo_ssh_key() {
 clone_gitrepo() {
     local branch=$1
     local repodir=$2
-    init_repo_ssh_key
+    init_repo_ssh_key 
     if [ -d ${repodir}/.git ]
     then
         e "Updating branch ${PROJECT_BRANCH} in ${repodir}"
@@ -335,14 +335,15 @@ then
     case "${INITWHAT}" in
         all)
             init_sudo
-            init_dploy_ssh_keys
+            init_dploy_ssh_keys ${PROJECT_REPO_HOST}
             install_software_debian
         ;;
         sudo)
             init_sudo
         ;;
         ssh)
-            init_ssh_keys ${PROJECT_REPO_HOST}
+            init_dploy_ssh_keys ${PROJECT_REPO_HOST}
+            init_repo_ssh_key
         ;;
         setup-debian)
             setup_debian_apt
