@@ -97,12 +97,12 @@ clone_gitrepo() {
     local repodir=$2
     if [ -d ${repodir}/.git ]
     then
-        e "Updating branch ${PROJECT_BUILD_NUMBER} in ${repodir}"
+        e "Updating branch ${PROJECT_BRANCH} in ${repodir}"
         pushd ${repodir} >/dev/null
         git pull 1>>git.log 2>&1
         popd >/dev/null
     else
-        e "Cloning branch ${PROJECT_BUILD_NUMBER} in ${repodir}"
+        e "Cloning branch ${PROJECT_BRANCH} in ${repodir}"
         set -o nounset # DO NOT REMOVE THIS OPTION
         mkdir -p ${repodir} 2>/dev/null
         local dirname_repodir=$(dirname ${repodir})
@@ -145,7 +145,7 @@ unpack_build_artifacts() {
             fi
         done
     done
-    e "Deployed ${PROJECT_NAME} version ${PROJECT_BUILD_NUMBER} to ${deploydir}"
+    e "Deployed ${PROJECT_NAME} version ${PROJECT_BRANCH} to ${deploydir}"
     [ -n "${VERBOSE}" ] && e "Looking for dist.zip files in ${deploydir}"
     distzips=($(find ${deploydir} -maxdepth 1 -type f -name \*-dist.zip))
     if [ ${#distzips[@]} -gt 0 ]
@@ -168,12 +168,13 @@ build_review_release() {
     local builddir="${PROJECT_DEPLOY_REVIEW}/${branch}/build"
     clone_gitrepo ${branch} ${builddir}
     pushd ${builddir} >/dev/null
-    e "Building branch ${PROJECT_BUILD_NUMBER} in ${builddir}"
+    e "Cleaning build in ${builddir}"
     local project_mvn_repo=${builddir}/.m2
     rm -rf ${project_mvn_repo}
     mkdir ${project_mvn_repo} 2>/dev/null
+    e "Building branch ${PROJECT_BRANCH} in ${builddir}"
     local MAVEN_LOCAL_REPO="-Dmaven.repo.local=${project_mvn_repo}"
-    mvn ${MVN_OPTIONS} -l maven.log ${MAVEN_LOCAL_REPO} ${MVN_SETTINGS} ${MVN_PROFILES_REVIEW} help:active-profiles clean verify
+    mvn -l maven.log ${MVN_OPTIONS} ${MAVEN_LOCAL_REPO} ${MVN_SETTINGS} ${MVN_PROFILES_REVIEW} help:active-profiles clean verify
     if [ $? -eq 0 ]
     then
         local deploydir="${PROJECT_DEPLOY_REVIEW}/${branch}/deploy"
@@ -182,7 +183,7 @@ build_review_release() {
     popd >/dev/null
 }
 
-build_prod_release() {
+build_production_release() {
     local branch=$1
     local confdir=${PROJECT_DEPLOY_PRODUCTION}/conf
     e "Creating empty configuration directory ${confdir}"
@@ -190,12 +191,13 @@ build_prod_release() {
     local builddir="${PROJECT_DEPLOY_PRODUCTION}/${branch}/build"
     clone_gitrepo ${branch} ${builddir}
     pushd ${builddir} >/dev/null
-    e "Building branch ${PROJECT_BUILD_NUMBER} in ${builddir}"
+    e "Cleaning build in ${builddir}"
     local project_mvn_repo=${builddir}/.m2
     rm -rf ${project_mvn_repo}
     mkdir ${project_mvn_repo} 2>/dev/null
+    e "Building branch ${PROJECT_BRANCH} in ${builddir}"
     local MAVEN_LOCAL_REPO="-Dmaven.repo.local=${project_mvn_repo}"
-    mvn ${MVN_OPTIONS} -l maven.log ${MAVEN_LOCAL_REPO} ${MVN_SETTINGS} ${MVN_PROFILES_PRODUCTION} ${MVN_SKIPTESTS} help:active-profiles clean verify
+    mvn -l maven.log ${MVN_OPTIONS} ${MAVEN_LOCAL_REPO} ${MVN_SETTINGS} ${MVN_PROFILES_PRODUCTION} ${MVN_SKIPTESTS} help:active-profiles clean package
     if [ $? -eq 0 ]
     then
         local deploydir="${PROJECT_DEPLOY_PRODUCTION}/${branch}/deploy"
@@ -229,10 +231,10 @@ show_vars() {
     e "Variables:"
     e "  VERBOSE=${VERBOSE}"
     e "  PROJECT_NAME=${PROJECT_NAME}"
-    e "  DPLOYCONF=${DPLOYCONF}"
+    e "  DPLOY_CONF=${DPLOY_CONF}"
     e "  PROJECT_HOME=${PROJECT_HOME}"
     e "  PROJECT_BUILD_TYPE=${PROJECT_BUILD_TYPE}"
-    e "  PROJECT_BUILD_NUMBER=${PROJECT_BUILD_NUMBER}"
+    e "  PROJECT_BRANCH=${PROJECT_BRANCH}"
     e "  PROJECT_USER=${PROJECT_USER}"
     e "  PROJECT_GROUP=${PROJECT_GROUP}"
     e "  MVN_SETTINGS=${MVN_SETTINGS}"
@@ -244,7 +246,7 @@ show_vars() {
 }
 
 VERBOSE=
-DPLOYCONF=
+DPLOY_CONF=
 INITWHAT=
 PROJECT_NAME=
 
@@ -252,10 +254,10 @@ while getopts ":c:b:hi:p:t:v" opt
 do
     case "$opt" in
         b)
-            PROJECT_BUILD_NUMBER=${OPTARG}
+            PROJECT_BRANCH=${OPTARG}
         ;;
         c)
-            DPLOYCONF=${OPTARG}
+            DPLOY_CONF=${OPTARG}
         ;;
         h)
             show_usage
@@ -291,12 +293,12 @@ then
     exit 1
 fi
 
-DPLOYCONF="${DPLOYCONF:-dploy.${PROJECT_NAME}.conf}"
-if [ -f ${DPLOYCONF} ]
+DPLOY_CONF="${DPLOY_CONF:-dploy.${PROJECT_NAME}.conf}"
+if [ -f ${DPLOY_CONF} ]
 then
-    . ${DPLOYCONF}
+    . ${DPLOY_CONF}
 else
-    e "Project configuration ${DPLOYCONF} not found"
+    e "Project configuration ${DPLOY_CONF} not found"
     exit 1
 fi
 
@@ -345,14 +347,14 @@ then
     esac
 fi
 
-if [ -n "${PROJECT_BUILD_TYPE}" -a -n "${PROJECT_BUILD_NUMBER}" ]
+if [ -n "${PROJECT_BUILD_TYPE}" -a -n "${PROJECT_BRANCH}" ]
 then
     case "${PROJECT_BUILD_TYPE}" in
         review)
-            build_review_release ${PROJECT_BUILD_NUMBER}
+            build_review_release ${PROJECT_BRANCH}
         ;;
         production)
-            build_production_release ${PROJECT_BUILD_NUMBER}
+            build_production_release ${PROJECT_BRANCH}
         ;;
         *)
             e "Unknown build type ${PROJECT_BUILD_TYPE}"
