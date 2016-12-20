@@ -101,7 +101,7 @@ init_repo_ssh_key() {
 clone_gitrepo() {
     local branch=$1
     local repodir=$2
-    init_repo_ssh_key 
+    init_repo_ssh_key ${PROJECT_REPO_HOST}
     if [ -d ${repodir}/.git ]
     then
         e "Updating branch ${PROJECT_BRANCH} in ${repodir}"
