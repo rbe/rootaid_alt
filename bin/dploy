@@ -67,6 +67,10 @@ install_software_ubuntu() {
     apt-get -q -y install maven3
 }
 
+#
+# Source Code Management
+#
+
 init_ssh_keys() {
     local hostname=$1
     ssh-keygen -R ${hostname}
@@ -87,10 +91,6 @@ EOF
     e "* Please send this SSH public key to developer -- END"
     e "*"
 }
-
-#
-# Source Code Management
-#
 
 clone_gitrepo() {
     local branch=$1
