@@ -53,10 +53,10 @@ EOF
 cat >>/etc/apache2/apache2.conf <<EOF
 
 # Rootaid
-Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/dir-structure.conf
-Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/default-cache.conf
-Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/pagespeed-global.conf
-Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/php-security.conf
+#Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/dir-structure.conf
+#Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/default-cache.conf
+#Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/pagespeed-global.conf
+#Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/php-security.conf
 EOF
 
 exit 0
