@@ -45,11 +45,11 @@ case "${MODE}" in
     start)
         e "Starting ${APP_NAME}..."
         show_vars
-        echo sudo touch ${APP_LOGFILE}
-        echo sudo chown ${APP_USER}:${APP_GROUP} ${APP_LOGFILE}
+        sudo touch ${APP_LOGFILE}
+        sudo chown ${APP_USER}:${APP_GROUP} ${APP_LOGFILE}
         logredir="2>${APP_LOGFILE} 1>&2"
         export APP_HOME
-        echo sudo -Eu ${APP_USER} sh -c "cd ${APP_HOME} ; java ${JAVA_OPTS} -jar ${APP_ARTIFACT} ${APP_OPTS} ${logredir} &"
+        sudo -Eu ${APP_USER} sh -c "cd ${APP_HOME} ; java ${JAVA_OPTS} -jar ${APP_ARTIFACT} ${APP_OPTS} ${logredir} &"
     ;;
     stop)
         e "Stopping ${APP_NAME}..."
