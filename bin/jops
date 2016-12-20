@@ -40,8 +40,10 @@ APP_USER=${APP_USER:-$(getent passwd `id -u` | cut -d: -f1)}
 APP_GROUP=${APP_GROUP:-$(getent group `id -g` | cut -d: -f1)}
 APP_PROFILE=${APP_PROFILE:-production}
 APP_PROFILE_PROPERTIES="$(pushd ${APP_HOME}/../../../../${APP_PROFILE}/conf >/dev/null ; pwd ; popd >/dev/null)"
-APP_OPTS="--spring.config.location=classpath:/application.properties,${APP_PROFILE_PROPERTIES}/${APP_NAME}.properties"
-APP_LOGFILE="${APP_LOGDIR}/${APP_NAME}.log"
+#APP_OPTS="--spring.config.location=classpath:/application.properties,${APP_PROFILE_PROPERTIES}/${APP_NAME}.properties"
+APP_OPTS="--spring.config.location=${APP_PROFILE_PROPERTIES}/${APP_NAME}.properties"
+APP_LOGDIR=${APP_LOGDIR:-/var/log}
+APP_LOGFILE="${APP_LOGDIR}/${APP_NAME}-${APP_VERSION}.log"
 
 case "${MODE}" in
     start)
