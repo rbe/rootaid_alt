@@ -21,8 +21,8 @@ fi
 JOPS_CONF_DIR="$(pushd "`dirname ${JOPS_CONF}`" >/dev/null ; pwd ; popd >/dev/null)"
 APP_HOME="$(dirname ${JOPS_CONF_DIR})"
 APP_PROFILE=${APP_PROFILE:-production}
-APP_PROFILE_PROPERTIES="$(pushd ${APP_HOME}/../../../${APP_PROFILE}/conf/${APP_NAME}.properties >/dev/null ; pwd ; popd >/dev/null)"
-APP_OPTS="--spring.config.location=classpath:/application.properties,${APP_PROFILE_PROPERTIES}"
+APP_PROFILE_PROPERTIES="$(pushd ${APP_HOME}/../../../${APP_PROFILE}/conf >/dev/null ; pwd ; popd >/dev/null)"
+APP_OPTS="--spring.config.location=classpath:/application.properties,${APP_PROFILE_PROPERTIES}/${APP_NAME}.properties"
 APP_LOGFILE="${APP_LOGDIR}/${APP_NAME}.log"
 
 e() {
