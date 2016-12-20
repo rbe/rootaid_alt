@@ -36,8 +36,8 @@ fi
 . ${JOPS_CONF}
 JOPS_CONF_DIR="$(pushd "`dirname ${JOPS_CONF}`" >/dev/null ; pwd ; popd >/dev/null)"
 APP_HOME="$(dirname ${JOPS_CONF_DIR})"
-APP_USER=${APP_USER:-$(id -u)}
-APP_GROUP=${APP_GROUP:-$(id -g)}
+APP_USER=${APP_USER:-$(getent passwd `id -u` | cut -d: -f1)}
+APP_GROUP=${APP_GROUP:-$(getent group `id -g` | cut -d: -f1)}
 APP_PROFILE=${APP_PROFILE:-production}
 APP_PROFILE_PROPERTIES="$(pushd ${APP_HOME}/../../../../${APP_PROFILE}/conf >/dev/null ; pwd ; popd >/dev/null)"
 APP_OPTS="--spring.config.location=classpath:/application.properties,${APP_PROFILE_PROPERTIES}/${APP_NAME}.properties"
