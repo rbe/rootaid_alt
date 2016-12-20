@@ -15,6 +15,7 @@ sudo adduser --uid ${ROOTAID_UID} --ingroup ${ROOTAID_USER} --home ${ROOTAID_HOM
 sudo apt-get -y install git
 ROOTAID_REPO_NAME='eu.artofcoding.rootaid'
 pushd ${ROOTAID_HOME}
+ssh-keyscan -R bitbucket.org
 ssh-keyscan bitbucket.org >>${HOME}/.ssh/known_hosts
 git clone --depth 1 https://bitbucket.org/artofcoding/${ROOTAID_REPO_NAME}.git
 popd
