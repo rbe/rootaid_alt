@@ -1,0 +1,19 @@
+= Rootaid
+include::rootaid-conf.adoc[]
+:author: Ralf Bensmann
+:email: <ralf@art-of-coding.eu>
+:version-label: Version
+:revnumber: 1.0
+:revdate: {docdate}
+:revremark: art of coding UG, https://blog.art-of-coding.eu
+:description: This document describes Rootaid services and scripts.
+
+== asciidocserver
+
+== rootaid
+
+See ...
+
+== iRedMail
+
+See ...
