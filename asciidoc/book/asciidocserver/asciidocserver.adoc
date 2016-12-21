@@ -1,11 +1,13 @@
 = asciidocserver
 include::asciidocserver-conf.adoc[]
+:organisation: art of coding UG
+:organisation-url: https://www.art-of-coding.eu
 :author: Ralf Bensmann
 :email: <ralf@art-of-coding.eu>
 :version-label: Version
 :revnumber: 1.0
 :revdate: {docdate}
-:revremark: art of coding UG, https://blog.art-of-coding.eu
+:revremark:
 :description: This document describes asciidocserver -- a node.js based asciidoc renderer.
 
 == Introduction
