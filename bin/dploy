@@ -89,7 +89,7 @@ get_ssh_publickey() {
     local hostname=$1
     ssh-keygen -qR ${hostname} 2>/dev/null
     ssh-keyscan -H ${hostname} >>${HOME}/.ssh/known_hosts 2>/dev/null
-    ssh-keyscan -F ${hostname} >/dev/null
+    ssh-keygen -F ${hostname} >/dev/null
     myexit $? "Could not retrieve SSH public key for ${hostname}"
 }
 
