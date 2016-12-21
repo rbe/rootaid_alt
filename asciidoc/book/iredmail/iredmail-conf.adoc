@@ -1,9 +1,14 @@
+:docinfo: shared
+
 :toc: right
 :toclevels: 2
+
 :numbered:
 :sectnums:
 :sectnumlevels: 3
 :sectlinks:
+
 :icons: font
 :source-highlighter: highlight.js
+
 :experimental:
