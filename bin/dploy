@@ -76,7 +76,7 @@ init_dploy_ssh_key() {
     ssh-keygen -R ${hostname}
     ssh-keyscan ${hostname} >>${HOME}/.ssh/known_hosts
     local sshprivkeyfile="${HOME}/.ssh/id_rsa_dploy"
-    ssh-keygen -t rsa -b 4096 -N "" -f ${sshprivkeyfile}
+    ssh-keygen -t rsa -b ${PROJECT_REPO_SSH_KEY_BITS} -N "" -f ${sshprivkeyfile}
     cat >>${HOME}/.ssh/config <<EOF
 Host ${hostname}
     User git
