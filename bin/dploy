@@ -82,10 +82,16 @@ install_software_ubuntu() {
 # Source Code Management
 #
 
+get_ssh_publickey() {
+    local hostname=$1
+    ssh-keygen -qR ${hostname} 2>/dev/null
+    ssh-keyscan -H ${hostname} >>${HOME}/.ssh/known_hosts 2>/dev/null
+    ssh-keyscan -F ${hostname} >/dev/null
+    myexit $? "Could not retrieve SSH public key for ${hostname}"
+}
+
 init_dploy_ssh_key() {
     local hostname=$1
-    ssh-keygen -R ${hostname}
-    ssh-keyscan ${hostname} >>${HOME}/.ssh/known_hosts
     local sshprivkeyfile="${HOME}/.ssh/id_rsa_dploy"
     ssh-keygen -t rsa -b ${PROJECT_REPO_SSH_KEY_BITS} -N "" -f ${sshprivkeyfile}
     cat >>${HOME}/.ssh/config <<EOF
@@ -103,16 +109,10 @@ EOF
     e "*"
 }
 
-init_repo_ssh_key() {
-    local hostname=$1
-    ssh-keygen -R ${hostname}
-    ssh-keyscan ${hostname} >>${HOME}/.ssh/known_hosts
-}
-
 clone_gitrepo() {
     local branch=$1
     local repodir=$2
-    init_repo_ssh_key ${PROJECT_REPO_HOST}
+    get_ssh_publickey ${PROJECT_REPO_HOST}
     if [ -d ${repodir}/.git ]
     then
         e "Updating branch ${PROJECT_BRANCH} in ${repodir}"
@@ -128,7 +128,7 @@ clone_gitrepo() {
         pushd ${dirname_repodir} >/dev/null
         local base_repodir=$(basename ${repodir})
         [ -d ${base_repodir} ] && rm -rf ${base_repodir}
-        git clone --depth 1 --branch ${branch} --single-branch ${PROJECT_REPO} ${base_repodir} 1>git.log 2>&1
+        git clone --depth 1 --branch ${branch} --single-branch ${PROJECT_REPO} ${base_repodir} 1>>git.log 2>&1
         myexit $? "Cannot clone repository"
         popd >/dev/null
     fi
@@ -351,7 +351,7 @@ then
         ;;
         ssh)
             init_dploy_ssh_keys ${PROJECT_REPO_HOST}
-            init_repo_ssh_key
+            get_ssh_publickey
         ;;
         setup-debian)
             setup_debian_apt
