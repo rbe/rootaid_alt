@@ -31,14 +31,17 @@ ${PROJECT_USER} ALL=(ALL) ALL, NOPASSWD: /usr/sbin/service, /bin/mkdir, /bin/mv,
 EOF
 }
 
-setup_debian_apt() {
+check_osrelease() {
     if [ -f /etc/os-release ]
     then
         . /etc/os-release
     else
-        e "Debian only: /etc/os-release not found"
+        e "Debian(-based) only: /etc/os-release not found"
         exit 1
     fi
+}
+
+setup_debian_apt() {
     if [ "${ID}" -eq "debian" ]
     then
         if [ "${VERSION_ID}" -eq 8 ]
@@ -342,10 +345,22 @@ fi
 if [ -n "${INITWHAT}" ]
 then
     case "${INITWHAT}" in
-        all)
-            init_sudo
-            init_dploy_ssh_keys ${PROJECT_REPO_HOST}
-            install_software_debian
+        setup-linux)
+            check_osrelease
+            case "${ID}" in
+                debian)
+                    setup_debian_apt
+                    install_software_debian
+                ;;
+                ubuntu)
+                    setup_ubuntu_apt
+                    install_software_ubuntu
+                ;;
+                *)
+                    e "Unsupported Linux distribution"
+                    exit 1
+                ;;
+            esac
         ;;
         sudo)
             init_sudo
@@ -354,10 +369,9 @@ then
             init_dploy_ssh_keys ${PROJECT_REPO_HOST}
             get_ssh_publickey
         ;;
-        setup-debian)
-            setup_debian_apt
-        ;;
-        software)
+        all)
+            init_sudo
+            init_dploy_ssh_keys ${PROJECT_REPO_HOST}
             install_software_debian
         ;;
     esac
