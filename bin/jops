@@ -40,63 +40,75 @@ APP_USER=${APP_USER:-$(getent passwd `id -u` | cut -d: -f1)}
 APP_GROUP=${APP_GROUP:-$(getent group `id -g` | cut -d: -f1)}
 APP_PROFILE=${APP_PROFILE:-production}
 APP_PROFILE_PROPERTIES="$(pushd ${APP_HOME}/../../../../${APP_PROFILE}/conf >/dev/null ; pwd ; popd >/dev/null)"
-#APP_OPTS="--spring.config.location=classpath:/application.properties,${APP_PROFILE_PROPERTIES}/${APP_NAME}.properties"
+# TODO APP_OPTS="--spring.config.location=classpath:/application.properties,${APP_PROFILE_PROPERTIES}/${APP_NAME}.properties"
 APP_OPTS="--spring.config.location=${APP_PROFILE_PROPERTIES}/${APP_NAME}.properties"
 APP_LOGDIR=${APP_LOGDIR:-/var/log}
 APP_LOGFILE="${APP_LOGDIR}/${APP_NAME}-${APP_VERSION}.log"
 
+start_app() {
+    echo "Starting ${APP_NAME}..."
+    show_vars
+    sudo touch ${APP_LOGFILE}
+    sudo chown ${APP_USER}:${APP_GROUP} ${APP_LOGFILE}
+    logredir="2>>${APP_LOGFILE} 1>&2"
+    export APP_HOME
+    sudo -Eu ${APP_USER} sh -c "cd ${APP_HOME} ; java ${JAVA_OPTS} -jar ${APP_ARTIFACT} ${APP_OPTS} ${logredir} &"
+}
+
+stop_app() {
+    echo "Stopping ${APP_NAME}..."
+    pid=$(ps ax | grep ${APP_NAME} | grep ${APP_PROFILE} | grep java | grep -v grep | awk '{print $1}')
+    if [ -z "${pid}" ]
+    then
+        e "Cannot find process id for ${APP_NAME}"
+    elif [ -n "${pid}" ]
+    then
+        kill ${pid}
+    else
+        echo "No pid"
+    fi
+}
+
+encrypt() {
+    e "*"
+    e "* WARNING"
+    e "*"
+    e "* YOU ARE ABOUT TO CHANGE ENCRYPTION OF CONFIGURATION VALUES."
+    e "* THIS MAY BREAK EXISTING PREVIOUSLY ENCRYPTED VALUES AND MAY HARM YOUR SYSTEM."
+    e "*"
+    e "* PROCEED ONLY IF YOU ARE SURE ABOUT WHAT YOU'RE DOING!"
+    e "*"
+    read -p "* Go ahead (y/n)?" goahead
+    if [ "${goahead}" = "y" ]
+    then
+        declare -A pvalue
+        encrypted_properties=$(grep ENC ${APP_HOME}/conf/${APP_NAME}.properties)
+        for ep in ${encrypted_properties}
+        do
+            pname=${ep%=*}
+            read -p "Enter value for ${pname}: " ${pvalue[pname]}
+        done
+        for k in ${!pvalue[@]}
+        do
+            pushd ${APP_HOME}/lib >/dev/null
+            jasypt="java -jar camel-jasypt-${version.org.apache.camel}.jar"
+            jasyptopt="-c encrypt -p ${ENCRYPTION_PASSWORD} -a ${ENCRYPTION_ALGORITHM}"
+            encrypted_value=$(${jasypt} ${jasyptopt} -i ${pvalue[$k]})
+            echo "${k}=ENC(${encrypted_value})"
+            popd >/dev/null
+        done
+    fi
+}
+
 case "${MODE}" in
     start)
-        echo "Starting ${APP_NAME}..."
-        show_vars
-        sudo touch ${APP_LOGFILE}
-        sudo chown ${APP_USER}:${APP_GROUP} ${APP_LOGFILE}
-        logredir="2>>${APP_LOGFILE} 1>&2"
-        export APP_HOME
-        sudo -Eu ${APP_USER} sh -c "cd ${APP_HOME} ; java ${JAVA_OPTS} -jar ${APP_ARTIFACT} ${APP_OPTS} ${logredir} &"
+        start_app
     ;;
     stop)
-        echo "Stopping ${APP_NAME}..."
-        pid=$(ps ax | grep ${APP_NAME} | grep java | grep -v grep | awk '{print $1}')
-        if [ -z "${pid}" ]
-        then
-            e "Cannot find process id for ${APP_NAME}"
-        elif [ -n "${pid}" ]
-        then
-            kill ${pid}
-        else
-            echo "No pid"
-        fi
+        stop_app
     ;;
     encrypt)
-        e "*"
-        e "* WARNING"
-        e "*"
-        e "* YOU ARE ABOUT TO CHANGE ENCRYPTION OF CONFIGURATION VALUES."
-        e "* THIS MAY BREAK EXISTING PREVIOUSLY ENCRYPTED VALUES AND MAY HARM YOUR SYSTEM."
-        e "*"
-        e "* PROCEED ONLY IF YOU ARE SURE ABOUT WHAT YOU'RE DOING!"
-        e "*"
-        read -p "* Go ahead (y/n)?" goahead
-        if [ "${goahead}" = "y" ]
-        then
-            declare -A pvalue
-            encrypted_properties=$(grep ENC ${APP_HOME}/conf/${APP_NAME}.properties)
-            for ep in ${encrypted_properties}
-            do
-                pname=${ep%=*}
-                read -p "Enter value for ${pname}: " ${pvalue[pname]}
-            done
-            for k in ${!pvalue[@]}
-            do
-                pushd ${APP_HOME}/lib >/dev/null
-                jasypt="java -jar camel-jasypt-${version.org.apache.camel}.jar"
-                jasyptopt="-c encrypt -p ${ENCRYPTION_PASSWORD} -a ${ENCRYPTION_ALGORITHM}"
-                encrypted_value=$(${jasypt} ${jasyptopt} -i ${pvalue[$k]})
-                echo "${k}=ENC(${encrypted_value})"
-                popd >/dev/null
-            done
-        fi
+        encrypt
     ;;
     *)
         show_usage
