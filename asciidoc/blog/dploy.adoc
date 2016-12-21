@@ -1,0 +1,44 @@
+[[dploy]]
+== dploy: Build and Deploy Your Java Application
+
+.Vorbereitung
+[source,bash,lineno]
+----
+mkdir app
+cd app
+----
+
+=== Konfiguration und Installation
+
+Konfigurationsdatei: `.dploy.<projektname>.conf`, wobei `projektname` gleich dem Namen des <<scm,Source Code Repository>> ist.
+
+.dploy.vlsc.conf
+[source,bash,lineno]
+----
+# Project repository
+PROJECT_REPO_HOST="bitbucket.org"
+PROJECT_REPO_USER="artofcoding"
+----
+
+[source,bash,lineno]
+----
+dploy -p vlsc -i setup-linux
+dploy -p vlsc -i sudo
+dploy -p vlsc -i ssh
+----
+
+=== Ein System bauen
+
+==== Review Build
+
+[source,bash,lineno]
+----
+dploy -p vlsc -b default -t review
+----
+
+==== Production Build
+
+[source,bash,lineno]
+----
+dploy -p vlsc -b release/1.1 -t production
+----
