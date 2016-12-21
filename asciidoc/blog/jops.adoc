@@ -1,0 +1,36 @@
+[[jops]]
+== jops: Operate Your Java Application
+
+=== Dienste starten
+
+[source,bash,lineno]
+----
+jops start <path to jops.conf>
+----
+
+[source,bash,lineno]
+.Alle Dienste starten
+----
+cd app
+jops start vlsc/review/default/deploy/eu.artofcoding.vlsc.dataimport.camel-LOCALBUILD/conf/jops.conf
+jops start vlsc/review/default/deploy/eu.artofcoding.vlsc.licensemanager.restservice-LOCALBUILD/conf/jops.conf
+jops start vlsc/review/default/deploy/eu.artofcoding.vlsc.adminportal.presentation-LOCALBUILD/conf/jops.conf
+jops start vlsc/review/default/deploy/eu.artofcoding.vlsc.customerportal.presentation-LOCALBUILD/conf/jops.conf
+----
+
+=== Dienste stoppen
+
+[source,bash,lineno]
+----
+jops stop <path to jops.conf>
+----
+
+[source,bash,lineno]
+.Alle Dienste beenden
+----
+cd app
+jops stop vlsc/review/default/deploy/eu.artofcoding.vlsc.dataimport.camel-LOCALBUILD/conf/jops.conf
+jops stop vlsc/review/default/deploy/eu.artofcoding.vlsc.licensemanager.restservice-LOCALBUILD/conf/jops.conf
+jops stop vlsc/review/default/deploy/eu.artofcoding.vlsc.adminportal.presentation-LOCALBUILD/conf/jops.conf
+jops stop vlsc/review/default/deploy/eu.artofcoding.vlsc.customerportal.presentation-LOCALBUILD/conf/jops.conf
+----
