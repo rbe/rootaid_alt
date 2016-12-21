@@ -13,3 +13,21 @@ include::asciidocserver-conf.adoc[]
 You can contact {author} at {email}.
 
 {description}
+
+== Install
+
+----
+sudo apt-get -y install nodejs
+----
+
+----
+git clone --depth 1 https://bitbucket.org/artofcoding/asciidocserver
+----
+
+== Start
+
+----
+cd asciidocserver
+CONTENT_ROOT=/home/rootaid/eu.artofcoding.rootaid/asciidoc
+nohup node asciidocserver.js --bookroot=${CONTENT_ROOT}/book --blogroot=${CONTENT_ROOT}/blog 1>>asciidocserver.log 2>&1 &
+----
