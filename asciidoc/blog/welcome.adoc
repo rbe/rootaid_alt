@@ -10,12 +10,12 @@ include::welcome-conf.adoc[]
 
 == Web Hosting
 
-See /book/webhosting[Rootaid Book]
+See link:/book/webhosting[Rootaid Book]
 
 == asciidocserver
 
-See /book/asciidocserver[asciidocserver Book]
+See link:/book/asciidocserver[asciidocserver Book]
 
 == iRedMail
 
-See /book/iredmail[iRedMail Book]
+See link:/book/iredmail[iRedMail Book]

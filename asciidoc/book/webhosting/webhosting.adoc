@@ -41,6 +41,6 @@ include::webhost-openssl-howto.adoc[]
 
 This section covers setting up new a Linux system to support web hosting.
 
-See /blog/rootaid-setup[Rootaid Setup]
+See link:/blog/rootaid-setup[Rootaid Setup]
 
 include::webhost-linux-setup.adoc[]

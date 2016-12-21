@@ -1,6 +1,3 @@
-:toc: right
-:toclevels: 2
-
 :numbered:
 :sectnums:
 :sectnumlevels: 3
