@@ -8,6 +8,17 @@ e() {
     echo "$(basename $0): $*"
 }
 
+myexit() {
+    local ev=$1
+    shift
+    local msg=$*
+    if [ ${ev} -gt 0 ]
+    then
+        [ -z "${msg}" ] && e "Exit value ${ev}, exiting" || e ${msg}
+        exit ${ev}
+    fi
+}
+
 #
 # Initialization
 #
@@ -107,6 +118,7 @@ clone_gitrepo() {
         e "Updating branch ${PROJECT_BRANCH} in ${repodir}"
         pushd ${repodir} >/dev/null
         git pull 1>>git.log 2>&1
+        myexit $? "Cannot update repository"
         popd >/dev/null
     else
         e "Cloning branch ${PROJECT_BRANCH} in ${repodir}"
@@ -117,12 +129,8 @@ clone_gitrepo() {
         local base_repodir=$(basename ${repodir})
         [ -d ${base_repodir} ] && rm -rf ${base_repodir}
         git clone --depth 1 --branch ${branch} --single-branch ${PROJECT_REPO} ${base_repodir} 1>git.log 2>&1
+        myexit $? "Cannot clone repository"
         popd >/dev/null
-        if [ $? -gt 0 ]
-        then
-            e "Error clong repository"
-            exit 1
-        fi
     fi
 }
 
