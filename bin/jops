@@ -9,15 +9,18 @@ show_usage() {
 }
 
 show_vars() {
-    e "JOPS_CONF=${JOPS_CONF}"
-    e "APP_NAME=${APP_NAME}"
-    e "APP_VERSION=${APP_VERSION}"
-    e "APP_HOME=${APP_HOME}"
-    e "APP_USER=${APP_USER}"
-    e "APP_ARTIFACT=${APP_ARTIFACT}"
-    e "JAVA_OPTS=${JAVA_OPTS}"
-    e "APP_OPTS=${APP_OPTS}"
-    e "APP_LOGFILE=${APP_LOGFILE}"
+    e ""
+    e "Variables:"
+    e "  JOPS_CONF=${JOPS_CONF}"
+    e "  APP_NAME=${APP_NAME}"
+    e "  APP_VERSION=${APP_VERSION}"
+    e "  APP_HOME=${APP_HOME}"
+    e "  APP_USER=${APP_USER}"
+    e "  APP_ARTIFACT=${APP_ARTIFACT}"
+    e "  JAVA_OPTS=${JAVA_OPTS}"
+    e "  APP_OPTS=${APP_OPTS}"
+    e "  APP_LOGFILE=${APP_LOGFILE}"
+    e ""
 }
 
 MODE=$1
@@ -45,9 +48,11 @@ APP_OPTS="--spring.config.location=${APP_PROFILE_PROPERTIES}/${APP_NAME}.propert
 APP_LOGDIR=${APP_LOGDIR:-/var/log}
 APP_LOGFILE="${APP_LOGDIR}/${APP_NAME}-${APP_VERSION}.log"
 
+VERBOSE=
+
 start_app() {
-    echo "Starting ${APP_NAME}..."
-    show_vars
+    e "Starting ${APP_NAME}..."
+    [ -n "${VERBOSE}" ] && show_vars
     sudo touch ${APP_LOGFILE}
     sudo chown ${APP_USER}:${APP_GROUP} ${APP_LOGFILE}
     logredir="2>>${APP_LOGFILE} 1>&2"
@@ -56,16 +61,18 @@ start_app() {
 }
 
 stop_app() {
-    echo "Stopping ${APP_NAME}..."
+    e "Stopping ${APP_NAME}..."
+    [ -n "${VERBOSE}" ] && show_vars
     pid=$(ps ax | grep ${APP_NAME} | grep ${APP_PROFILE} | grep java | grep -v grep | awk '{print $1}')
     if [ -z "${pid}" ]
     then
-        e "Cannot find process id for ${APP_NAME}"
+        e "Cannot find process id for ${APP_NAME}."
     elif [ -n "${pid}" ]
     then
         kill ${pid}
+        e "stopped."
     else
-        echo "No pid"
+        e "no pid."
     fi
 }
 
