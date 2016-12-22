@@ -9,8 +9,7 @@ ROOTAID_UID=${ROOTAID_UID:-1007}
 ROOTAID_GID=${ROOTAID_GID:-1003}
 
 sudo addgroup --gid ${ROOTAID_GID} ${ROOTAID_USER}
-sudo adduser --uid ${ROOTAID_UID} --ingroup ${ROOTAID_USER} --home ${ROOTAID_HOME} \
-    --disabled-password --gecos "Rootaid" ${ROOTAID_USER}
+sudo adduser --uid ${ROOTAID_UID} --ingroup ${ROOTAID_USER} --home ${ROOTAID_HOME} --disabled-password --gecos "Rootaid" ${ROOTAID_USER}
 
 sudo apt-get -y install git
 ROOTAID_REPO_NAME='eu.artofcoding.rootaid'
@@ -19,8 +18,7 @@ ssh-keygen -R bitbucket.org
 ssh-keyscan bitbucket.org >>${HOME}/.ssh/known_hosts
 git clone --depth 1 https://bitbucket.org/artofcoding/${ROOTAID_REPO_NAME}.git
 popd
-echo "0 * * * * ( cd ${ROOTAID_REPO_NAME} ; git pull )" \
-    | sudo crontab -u ${ROOTAID_USER} -
+echo "0 * * * * ( cd ${ROOTAID_REPO_NAME} ; git pull )" | sudo crontab -u ${ROOTAID_USER} -
 
 sudo touch ${ROOTAID_HOME}/.bashrc
 
