@@ -3,13 +3,17 @@
 
 === What Is dploy?
 
+=== dploy Filesystem
+
 === What Do I need?
 
 You need:
 
 . Source Code Repository
-.. Acces to it, ideally through a SSH deployment key
+.. Access to it, ideally through a SSH deployment key
+. Installed Java, Maven, see <<setup-dploy>>
 
+[[setup-dploy]]
 === Setup dploy
 
 Before first usage of `dploy` perform a setup routine, which installs needed software:

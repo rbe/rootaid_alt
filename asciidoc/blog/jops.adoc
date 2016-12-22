@@ -67,9 +67,7 @@ Use resource filtering to prepare a `jops.conf` in your build:
 [source,xml,lineno]
 ----
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project>
     <modelVersion>4.0.0</modelVersion>
     <parent>
         [...]
@@ -77,8 +75,8 @@ Use resource filtering to prepare a `jops.conf` in your build:
     <artifactId>eu.artofcoding.foo.bar.assembly</artifactId>
     <packaging>pom</packaging>
     <properties>
-        <assembly.name>${assembly.for.artifactId}-${project.version}</assembly.name>
-        <assembly.for.artifactId>eu.artofcoding.vlsc.adminportal.presentation</assembly.for.artifactId>
+        <assembly.root>${assembly.for.artifactId}-${project.version}</assembly.root>
+        <assembly.for.artifactId>eu.artofcoding.foo.bar</assembly.for.artifactId>
         <assembly.for.type>war</assembly.for.type>
         <!-- See profiles below -->
         <jops.app.profile>unknown</jops.app.profile>
@@ -90,7 +88,7 @@ Use resource filtering to prepare a `jops.conf` in your build:
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
-                <filtering>true</filtering>
+                <filtering>true</filtering> <1>
                 <targetPath>filtered-resources</targetPath>
             </resource>
         </resources>
@@ -123,7 +121,7 @@ Use resource filtering to prepare a `jops.conf` in your build:
                             <descriptors>
                                 <descriptor>src/main/assembly/dist.xml</descriptor>
                             </descriptors>
-                            <finalName>${assembly.name}</finalName>
+                            <finalName>${assembly.root}</finalName>
                         </configuration>
                     </execution>
                 </executions>
@@ -146,6 +144,7 @@ Use resource filtering to prepare a `jops.conf` in your build:
     </profiles>
 </project>
 ----
+<1> Enable resource filtering.
 
 .src/main/resources/jops.conf
 [source,ini,lineno]
@@ -166,15 +165,14 @@ JAVA_OPTS="-Xms128m -Xmx128m"
 #ENCRYPTION_ALGORITHM=PBEWithMD5AndTripleDES
 #ENCRYPTION_PASSWORD=abc123
 ----
+Standard settings are commented out.
 
 Include the genereated `jops.conf` in your assembly:
 
 .src/main/assembly/dist.xml: Maven assembly descriptor
 [source,xml,lineno]
 ----
-<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+<assembly>
     <id>dist</id>
     <formats>
         <format>zip</format>
