@@ -81,6 +81,24 @@ install_software_ubuntu() {
     apt-get -q -y install maven3
 }
 
+setup_linux() {
+    check_osrelease
+    case "${ID}" in
+        debian)
+            setup_debian_apt
+            install_software_debian
+        ;;
+        ubuntu)
+            setup_ubuntu_apt
+            install_software_ubuntu
+        ;;
+        *)
+            e "Unsupported Linux distribution"
+            exit 1
+        ;;
+    esac
+}
+
 #
 # Source Code Management
 #
@@ -346,21 +364,7 @@ if [ -n "${INITWHAT}" ]
 then
     case "${INITWHAT}" in
         setup-linux)
-            check_osrelease
-            case "${ID}" in
-                debian)
-                    setup_debian_apt
-                    install_software_debian
-                ;;
-                ubuntu)
-                    setup_ubuntu_apt
-                    install_software_ubuntu
-                ;;
-                *)
-                    e "Unsupported Linux distribution"
-                    exit 1
-                ;;
-            esac
+            setup_linux
         ;;
         sudo)
             init_sudo
@@ -370,9 +374,9 @@ then
             get_ssh_publickey
         ;;
         all)
+            setup_linux
             init_sudo
             init_dploy_ssh_keys ${PROJECT_REPO_HOST}
-            install_software_debian
         ;;
     esac
 fi
