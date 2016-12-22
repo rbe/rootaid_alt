@@ -21,7 +21,6 @@ Before first usage of `dploy` perform a setup routine, which:
 [source,bash,lineno]
 ----
 dploy -p foo -i setup-linux
-dploy -p foo -i ssh
 ----
 
 === A Project With dploy
@@ -43,6 +42,13 @@ For every project you need a configuration file, `.dploy.<projectname>.conf`, wh
 # Project repository
 PROJECT_REPO_HOST="bitbucket.org"
 PROJECT_REPO_USER="artofcoding"
+----
+
+==== SSH Deployment Key
+
+[source,bash,lineno]
+----
+dploy -p foo -i ssh
 ----
 
 ==== sudo
