@@ -1,5 +1,3 @@
-:docinfo: shared
-
 :toc: right
 :toclevels: 2
 
@@ -10,3 +8,5 @@
 
 :icons: font
 :source-highlighter: highlight.js
+
+:docinfo: shared
