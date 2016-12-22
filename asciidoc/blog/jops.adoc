@@ -1,36 +1,196 @@
 [[jops]]
 == jops: Operate Your Java Application
 
-=== Dienste starten
+=== Project Configuration
 
+[source,ini,lineno]
+----
+# Application
+APP_NAME=<name of application> <1>
+APP_VERSION=<version> <2>
+APP_PROFILE=review | production <3>
+#APP_USER=user
+#APP_GROUP=group
+APP_ARTIFACT=${APP_NAME}-${APP_VERSION}.jar
+#APP_LOGDIR="/var/log"
+
+# JVM settings
+JAVA_OPTS="-Xms128m -Xmx128m"
+
+# Encryption settings
+#ENCRYPTION_ALGORITHM=${ENCRYPTION_ALGORITHM:-PBEWithMD5AndTripleDES}
+#export ENCRYPTION_ALGORITHM
+#ENCRYPTION_PASSWORD=${ENCRYPTION_PASSWORD:-abc123}
+#export ENCRYPTION_PASSWORD
+----
+<1> ...
+<2> ...
+<3> ...
+
+=== Start Services
+
+.Start one service
 [source,bash,lineno]
 ----
 jops start <path to jops.conf>
 ----
 
 [source,bash,lineno]
-.Alle Dienste starten
+.Start all services of project
 ----
-cd app
-jops start vlsc/review/default/deploy/eu.artofcoding.vlsc.dataimport.camel-LOCALBUILD/conf/jops.conf
-jops start vlsc/review/default/deploy/eu.artofcoding.vlsc.licensemanager.restservice-LOCALBUILD/conf/jops.conf
-jops start vlsc/review/default/deploy/eu.artofcoding.vlsc.adminportal.presentation-LOCALBUILD/conf/jops.conf
-jops start vlsc/review/default/deploy/eu.artofcoding.vlsc.customerportal.presentation-LOCALBUILD/conf/jops.conf
+cd <path to project root>
+jops -p foo -m start
 ----
 
-=== Dienste stoppen
+=== Stop Services
 
+.Stop one service
 [source,bash,lineno]
 ----
 jops stop <path to jops.conf>
 ----
 
 [source,bash,lineno]
-.Alle Dienste beenden
+.Stop all services of project
 ----
-cd app
-jops stop vlsc/review/default/deploy/eu.artofcoding.vlsc.dataimport.camel-LOCALBUILD/conf/jops.conf
-jops stop vlsc/review/default/deploy/eu.artofcoding.vlsc.licensemanager.restservice-LOCALBUILD/conf/jops.conf
-jops stop vlsc/review/default/deploy/eu.artofcoding.vlsc.adminportal.presentation-LOCALBUILD/conf/jops.conf
-jops stop vlsc/review/default/deploy/eu.artofcoding.vlsc.customerportal.presentation-LOCALBUILD/conf/jops.conf
+cd <path to project root>
+jops -p foo -m stop
 ----
+
+=== Build Integration
+
+==== Maven
+
+Use resource filtering to prepare a `jops.conf` in your build:
+
+.pom.xml
+[source,xml,lineno]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        [...]
+    </parent>
+    <artifactId>eu.artofcoding.foo.bar.assembly</artifactId>
+    <packaging>pom</packaging>
+    <properties>
+        <assembly.name>${assembly.for.artifactId}-${project.version}</assembly.name>
+        <assembly.for.artifactId>eu.artofcoding.vlsc.adminportal.presentation</assembly.for.artifactId>
+        <assembly.for.type>war</assembly.for.type>
+        <!-- See profiles below -->
+        <jops.app.profile>unknown</jops.app.profile>
+    </properties>
+    <dependencies>
+        [...]
+    </dependencies>
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <targetPath>filtered-resources</targetPath>
+            </resource>
+        </resources>
+        <plugins>
+            <!-- maven-resources-plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- maven-assembly-plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/assembly/dist.xml</descriptor>
+                            </descriptors>
+                            <finalName>${assembly.name}</finalName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>foo.development</id>
+            <properties>
+                <jops.app.profile>review</app.profile>
+            </properties>
+        </profile>
+        <profile>
+            <id>foo.production</id>
+            <properties>
+                <jops.app.profile>production</app.profile>
+            </properties>
+        </profile>
+    </profiles>
+</project>
+----
+
+.src/main/resources/jops.conf
+[source,ini,lineno]
+----
+# Application
+APP_NAME=${assembly.for.artifactId}
+APP_VERSION=${project.version}
+APP_PROFILE=${jops.app.profile}
+#APP_USER=user
+#APP_GROUP=group
+APP_ARTIFACT=${APP_NAME}-${APP_VERSION}.jar
+#APP_LOGDIR="/var/log"
+
+# JVM settings
+JAVA_OPTS="-Xms128m -Xmx128m"
+
+# Encryption settings
+#ENCRYPTION_ALGORITHM=PBEWithMD5AndTripleDES
+#ENCRYPTION_PASSWORD=abc123
+----
+
+Include the genereated `jops.conf` in your assembly:
+
+.src/main/assembly/dist.xml: Maven assembly descriptor
+[source,xml,lineno]
+----
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+    <id>dist</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <fileSets>
+        <fileSet> <1>
+            <directory>${project.build.outputDirectory}/filtered-resources</directory>
+            <outputDirectory>${assembly.root}</outputDirectory> <2>
+        </fileSet>
+    </fileSets>
+    <dependencySets>
+        <dependencySet>
+            [...]
+        </dependencySet>
+    </dependencySets>
+</assembly>
+----
+<1> Include filtered resources
+<2> See `properties` in `pom.xml`

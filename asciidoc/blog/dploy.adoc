@@ -1,18 +1,43 @@
 [[dploy]]
 == dploy: Build and Deploy Your Java Application
 
-.Vorbereitung
+=== What Is dploy?
+
+=== What Do I need?
+
+You need:
+
+. Source Code Repository
+.. Acces to it, ideally through a SSH deployment key
+
+=== Setup dploy
+
+Before first usage of `dploy` perform a setup routine, which:
+
+* Installs needed software
+* Sets up sudo
+
+.Initialize dploy
+[source,bash,lineno]
+----
+dploy -p foo -i setup-linux
+dploy -p foo -i ssh
+----
+
+=== A Project With dploy
+
+.Preparation
 [source,bash,lineno]
 ----
 mkdir app
 cd app
 ----
 
-=== Konfiguration und Installation
+==== Configuration
 
-Konfigurationsdatei: `.dploy.<projektname>.conf`, wobei `projektname` gleich dem Namen des <<scm,Source Code Repository>> ist.
+For every project you need a configuration file, `.dploy.<projectname>.conf`, where `projectname` is the name of project's source code repository.
 
-.dploy.vlsc.conf
+.dploy.foo.conf
 [source,bash,lineno]
 ----
 # Project repository
@@ -20,25 +45,26 @@ PROJECT_REPO_HOST="bitbucket.org"
 PROJECT_REPO_USER="artofcoding"
 ----
 
+==== sudo
+
+.Setup sudo
 [source,bash,lineno]
 ----
-dploy -p vlsc -i setup-linux
-dploy -p vlsc -i sudo
-dploy -p vlsc -i ssh
+dploy -p foo -i sudo
 ----
 
-=== Ein System bauen
+=== Build Your Project
 
 ==== Review Build
 
 [source,bash,lineno]
 ----
-dploy -p vlsc -b default -t review
+dploy -p foo -b default -t review
 ----
 
 ==== Production Build
 
 [source,bash,lineno]
 ----
-dploy -p vlsc -b release/1.1 -t production
+dploy -p foo -b release/1.1 -t production
 ----
