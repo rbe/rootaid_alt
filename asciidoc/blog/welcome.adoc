@@ -10,7 +10,7 @@ include::welcome-conf.adoc[]
 
 == Welcome
 
-Rootaid aims to a helper for system administrators and developers.
+Rootaid aims to be a helper for system administrators and developers.
 
 See link:setup-rootaid[Setup Rootaid].
 
