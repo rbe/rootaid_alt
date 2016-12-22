@@ -163,3 +163,21 @@ This is automatically setup when a user is created by calling `create-user` scri
 # m h  dom mon dow   command
   0 0  *   *   *     /home/rootaid/eu.artofcoding.rootaid/bin/mysql-backup
 ----
+
+For this to work automatically, setup a `my.cnf` in users' home directory.
+
+.$HOME/my.cnf
+[source,ini,lineno]
+----
+[client]
+user=root
+password=foobar <1>
+socket=/var/run/mysqld/mysqld.sock
+----
+<1> Enter root password here
+
+Do not forget to set permissions so that no one can see these settings:
+
+----
+chmod 0600 .my.cnf
+----
