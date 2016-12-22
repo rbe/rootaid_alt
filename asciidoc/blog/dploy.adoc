@@ -12,10 +12,7 @@ You need:
 
 === Setup dploy
 
-Before first usage of `dploy` perform a setup routine, which:
-
-* Installs needed software
-* Sets up sudo
+Before first usage of `dploy` perform a setup routine, which installs needed software:
 
 .Initialize dploy
 [source,bash,lineno]
