@@ -10,11 +10,15 @@ include::asciidocserver-conf.adoc[]
 :revremark:
 :description: This document describes asciidocserver -- a node.js based asciidoc renderer.
 
+:numbered!:
+
 == Introduction
 
 You can contact {author} at {email}.
 
 {description}
+
+:numbered:
 
 == Install
 
