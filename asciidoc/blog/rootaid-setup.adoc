@@ -23,6 +23,8 @@ chmod +x setup-rootaid
 
 === Automatic Updates
 
+Regular pulling rootaid's git repository is setup by `setup-rootaid`:
+
 .crontab of user rootaid
 [source,bash,linenums]
 ----
