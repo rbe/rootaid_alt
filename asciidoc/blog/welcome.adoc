@@ -12,20 +12,25 @@ include::welcome-conf.adoc[]
 
 Rootaid aims to be a helper for system administrators and developers.
 
-See link:setup-rootaid[Setup Rootaid].
+See link:rootaid-setup[Setup Rootaid] and <<book-webhosting,Web Hosting>> below.
+
+== Support Java Applications
 
 See link:dploy[dploy -- Build and Deploy Your Java Application].
 
 See link:jops[jops -- Operate Your Java Application].
 
+[[book-asciidocserver]]
 == asciidocserver
 
 See link:/book/asciidocserver[asciidocserver Book].
 
+[[book-webhosting]]
 == Web Hosting
 
 See link:/book/webhosting[Rootaid Webhosting Book].
 
+[[book-iredmail]]
 == iRedMail
 
 A mail hosting solution based on http://iredmail.org[iRedMail].
