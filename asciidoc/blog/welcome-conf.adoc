@@ -1,4 +1,3 @@
-:numbered!:
 :sectnums:
 :sectnumlevels: 3
 :sectlinks:
