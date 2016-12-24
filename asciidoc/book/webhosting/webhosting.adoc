@@ -35,6 +35,8 @@ This section covers administrative tasks.
 * https://www.ssllabs.com/projects/documentation/index.html[SSLLabs Documentation]
 * https://en.wikipedia.org/wiki/Extended_Validation_Certificate#Extended_Validation_certificate_identification[Extended Validation certificate identification]
 
+include::webhost-ssh-howto.adoc[]
+
 include::webhost-apache-ssl-howto.adoc[]
 
 include::webhost-openssl-howto.adoc[]
