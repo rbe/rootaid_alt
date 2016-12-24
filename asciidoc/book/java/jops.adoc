@@ -1,8 +1,16 @@
 [[jops]]
 == jops: Operate Your Java Application
 
+=== What is jops?
+
+`jops` can operate your Java application by means of starting and stopping it.
+
+=== What Do I Need?
+
+[[project-configuration]]
 === Project Configuration
 
+.jops.conf explained
 [source,ini,lineno]
 ----
 # Application
@@ -18,14 +26,15 @@ APP_ARTIFACT=${APP_NAME}-${APP_VERSION}.jar
 JAVA_OPTS="-Xms128m -Xmx128m"
 
 # Encryption settings
-#ENCRYPTION_ALGORITHM=${ENCRYPTION_ALGORITHM:-PBEWithMD5AndTripleDES}
-#export ENCRYPTION_ALGORITHM
-#ENCRYPTION_PASSWORD=${ENCRYPTION_PASSWORD:-abc123}
-#export ENCRYPTION_PASSWORD
+#ENCRYPTION_ALGORITHM=PBEWithMD5AndTripleDES
+#ENCRYPTION_PASSWORD=abc123
 ----
 <1> ...
 <2> ...
 <3> ...
+
+[[services]]
+== Services
 
 === Start Services
 
@@ -57,6 +66,7 @@ cd <path to project root>
 jops -p foo -m stop
 ----
 
+[[build-integration]]
 === Build Integration
 
 ==== Maven

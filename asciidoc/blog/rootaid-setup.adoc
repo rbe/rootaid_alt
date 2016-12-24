@@ -1,5 +1,12 @@
 [[rootaid-setup]]
 == Setup Rootaid
+:author: Ralf Bensmann
+:email: <ralf@art-of-coding.eu>
+:version-label: Version
+:revnumber: 1.0
+:revdate: {docdate}
+:revremark: art of coding UG, https://blog.art-of-coding.eu
+:description: Setting up rootaid.
 
 Setting up rootaid consists of the following:
 
