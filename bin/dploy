@@ -262,7 +262,7 @@ show_usage() {
     e "    -c <alternate path to dploy.project.conf>"
     e "    -v show verbose output"
     e "  and"
-    e "    -i <setup-linux | sudo | ssh | all>"
+    e "    -i <setup-linux | sudo | ssh-deployment-key | all>"
     e "  or"
     e "    -b <build number, e.g. master or release/1.1>"
     e "    -t <build type = review | production>"
@@ -376,9 +376,8 @@ then
         sudo)
             init_sudo
         ;;
-        ssh)
+        ssh-deployment-key)
             init_dploy_ssh_keys ${PROJECT_REPO_HOST}
-            get_ssh_publickey
         ;;
         all)
             setup_linux
