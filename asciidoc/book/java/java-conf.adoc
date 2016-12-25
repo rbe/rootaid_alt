@@ -1,3 +1,6 @@
+:toc: right
+:toclevels: 2
+
 :sectnums:
 :sectnumlevels: 3
 :sectlinks:
