@@ -1,7 +1,0 @@
-== Custom Settings
-
-include::customization-antispam.adoc[]
-
-include::customization-smtp.adoc[]
-
-include::customization-imap.adoc[]
