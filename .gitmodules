@@ -1,6 +1,8 @@
 [submodule "asciidocserver"]
 	path = asciidocserver
-	url = git@bitbucket.org:artofcoding/eu.artofcoding.asciidocserver.git
+	url = https://bitbucket.org/artofcoding/eu.artofcoding.asciidocserver.git
+	pushurl = git@bitbucket.org:artofcoding/eu.artofcoding.asciidocserver.git
 [submodule "rootbooks"]
 	path = rootbooks
-	url = git@bitbucket.org:artofcoding/rootbooks.git
+	url = https://bitbucket.org/artofcoding/rootbooks.git
+	pushurl = git@bitbucket.org:artofcoding/rootbooks.git
