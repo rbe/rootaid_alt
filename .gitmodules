@@ -1,0 +1,3 @@
+[submodule "asciidocserver"]
+	path = asciidocserver
+	url = git@bitbucket.org:artofcoding/eu.artofcoding.asciidocserver.git
