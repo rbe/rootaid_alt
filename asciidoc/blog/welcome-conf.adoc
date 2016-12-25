@@ -1,6 +1,0 @@
-:sectnums:
-:sectnumlevels: 3
-:sectlinks:
-
-:icons: font
-:source-highlighter: highlight.js
