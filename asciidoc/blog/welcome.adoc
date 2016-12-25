@@ -24,7 +24,7 @@ Rootaid link:/book/java[supports Java applications].
 [[book-asciidocserver]]
 == asciidocserver
 
-We provide an asciidoc server to show your documentation, it also serves this documentation.
+We provide an asciidoc server to show your project's documentation, it also serves this documentation.
 See link:/book/asciidocserver[asciidocserver Book].
 
 [[book-webhosting]]
