@@ -4,6 +4,10 @@ e() {
     echo "jops: $*"
 }
 
+#
+# jops
+#
+
 show_usage() {
     echo "Usage: $0 { start | stop | encrypt } [<path to jdrive.conf>]"
 }
