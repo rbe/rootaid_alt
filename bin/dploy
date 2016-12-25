@@ -27,7 +27,7 @@ init_sudo() {
     local sudoersd="/etc/sudoers.d/${PROJECT_NAME}"
     e "Setting up sudo rules for ${PROJECT_NAME} in ${sudoersd}"
     sudo cat >${sudoersd} <<EOF
-${PROJECT_USER} ALL=(ALL) ALL, NOPASSWD: /usr/sbin/service, /bin/mkdir, /bin/mv, /bin/rm, /bin/ln, /usr/bin/touch, /bin/chown, /bin/chmod, /bin/cat, /usr/bin/apt-key
+${PROJECT_USER} ALL=(ALL) ALL, NOPASSWD: /usr/sbin/service, /bin/mkdir, /bin/mv, /bin/rm, /bin/ln, /usr/bin/touch, /bin/chown, /bin/chmod, /bin/cat, /usr/bin/apt-key, /usr/bin/apt-get
 EOF
 }
 
