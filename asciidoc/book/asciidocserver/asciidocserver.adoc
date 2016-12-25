@@ -10,6 +10,8 @@ include::asciidocserver-conf.adoc[]
 :revremark:
 :description: This document describes asciidocserver -- a node.js based asciidoc renderer.
 
+:repo-url: https://bitbucket.org/artofcoding/asciidocserver
+
 :numbered!:
 
 == Introduction
@@ -27,11 +29,13 @@ sudo apt-get -y install nodejs
 ----
 
 ----
-git clone --depth 1 https://bitbucket.org/artofcoding/asciidocserver
+git clone --depth 1 {repo-url}
 ----
 
-== Start
+== Using asciidocserver
 
+.Start manually
+[source,bash,lineno]
 ----
 cd asciidocserver
 CONTENT_ROOT=/home/rootaid/eu.artofcoding.rootaid/asciidoc

@@ -14,3 +14,7 @@ Rootaid supports Java applications through two tools:
 
 . link:dploy[dploy -- Build and Deploy Your Java Application].
 . link:jops[jops -- Operate Your Java Application].
+
+include::dploy.adoc[]
+
+include::jops.adoc[]

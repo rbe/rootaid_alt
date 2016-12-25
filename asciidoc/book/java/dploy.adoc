@@ -74,7 +74,7 @@ Generate a deployment key for your project and submit the resulting public key t
 
 [source,bash,lineno]
 ----
-dploy -p foo -i ssh
+dploy -p foo -i ssh-deployment-key
 ----
 
 `dploy` will show generated SSH public key at the end. In case you need to look it up yourself, it is put in `$HOME/.ssh`:
