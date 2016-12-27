@@ -1,5 +1,12 @@
 #!/bin/bash
 
+UID=$(id -u)
+if [ ${UID} -neq 0 ]
+then
+    echo "$0: Please execute this script as root"
+    exit 1
+fi
+
 set -o nounset
 
 [ -f setup-rootaid.conf ] && . setup-rootaid.conf
