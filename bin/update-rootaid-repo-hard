@@ -1,0 +1,11 @@
+#!/bin/bash
+
+execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
+basedir="$(pushd ${execdir}/.. >/dev/null ; pwd ; popd >/dev/null)"
+
+pushd ${basedir} >/dev/null
+git reset --hard
+git pull origin master --recurse-submodules
+popd >/dev/null
+
+exit 0
