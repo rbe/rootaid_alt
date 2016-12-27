@@ -25,12 +25,12 @@ sudo adduser --uid ${ROOTAID_UID} --ingroup ${ROOTAID_USER} --home ${ROOTAID_HOM
 
 sudo apt-get -y install git
 ROOTAID_REPO_NAME='eu.artofcoding.rootaid'
-pushd ${ROOTAID_HOME}
+pushd ${ROOTAID_HOME} >/dev/null
 ssh-keygen -R bitbucket.org
 ssh-keyscan bitbucket.org >>${HOME}/.ssh/known_hosts
 git clone --depth 1 https://bitbucket.org/artofcoding/${ROOTAID_REPO_NAME}.git
-popd
-echo "0 * * * * ( cd ${ROOTAID_REPO_NAME} ; git pull )" | sudo crontab -u ${ROOTAID_USER} -
+popd >/dev/null
+echo "0 * * * * ( cd ${ROOTAID_REPO_NAME} ; ./bin/update-rootaid-repo-hard 2>update-rootaid-repo-hard.log 1>&2 )" | sudo crontab -u ${ROOTAID_USER} -
 
 sudo touch ${ROOTAID_HOME}/.bashrc
 
