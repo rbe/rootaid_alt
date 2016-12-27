@@ -15,6 +15,11 @@ ROOTAID_HOME="${ROOTAID_HOME:-/home/${ROOTAID_USER}}"
 ROOTAID_UID=${ROOTAID_UID:-1007}
 ROOTAID_GID=${ROOTAID_GID:-1003}
 
+apt-get -y install sudo
+cat >/etc/sudoers.d/rootaid <<EOF
+rootaid ALL=(ALL) ALL, NOPASSWD: ALL
+EOF
+
 sudo addgroup --gid ${ROOTAID_GID} ${ROOTAID_USER}
 sudo adduser --uid ${ROOTAID_UID} --ingroup ${ROOTAID_USER} --home ${ROOTAID_HOME} --disabled-password --gecos "Rootaid" ${ROOTAID_USER}
 
