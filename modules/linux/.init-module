@@ -1,0 +1,24 @@
+#!/bin/bash
+
+execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
+bindir="${execdir}/bin"
+
+echo >>${HOME}/.bashrc <<EOF
+
+# Rootaid
+PATH=${bindir}:\$PATH
+EOF
+
+if [ -f /etc/os-release ]
+then
+  . /etc/os-release
+  if [ "${ID}" = "debian" ]
+  then
+    debianbindir="${execdir}/debian/bin"
+    echo "PATH=${debianbindir}:\$PATH" >>${HOME}/.bashrc
+  fi
+fi
+
+echo "export PATH" >>${HOME}/.bashrc
+
+exit 0

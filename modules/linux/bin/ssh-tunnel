@@ -6,8 +6,11 @@
 
 set -o nounset
 
+execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
+etcdir="$(pushd ${execdir}/etc >/dev/null ; pwd ; popd >/dev/null)"
+
 declare -A TUNNEL=()
-. $0.conf
+[ -f ${etcdir}/$0.conf ] && . ${etcdir}/$0.conf
 
 _kill_tunnel() {
     local ident=$1

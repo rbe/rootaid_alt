@@ -9,7 +9,10 @@ fi
 
 set -o nounset
 
-[ -f setup-rootaid.conf ] && . setup-rootaid.conf
+execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
+etcdir="$(pushd ${execdir}/etc >/dev/null ; pwd ; popd >/dev/null)"
+
+[ -f ${etcdir}/$0.conf ] && . ${etcdir}/$0.conf
 ROOTAID_USER=${ROOTAID_USER:-"rootaid"}
 ROOTAID_HOME="${ROOTAID_HOME:-/home/${ROOTAID_USER}}"
 ROOTAID_UID=${ROOTAID_UID:-1007}
@@ -30,7 +33,7 @@ ssh-keygen -R bitbucket.org
 ssh-keyscan bitbucket.org >>${HOME}/.ssh/known_hosts
 git clone --depth 1 https://bitbucket.org/artofcoding/${ROOTAID_REPO_NAME}.git
 popd >/dev/null
-echo "0 * * * * ( cd ${ROOTAID_REPO_NAME} ; ./bin/update-rootaid-repo-hard 2>update-rootaid-repo-hard.log 1>&2 )" | sudo crontab -u ${ROOTAID_USER} -
+echo "0 * * * * ( cd ${ROOTAID_REPO_NAME} ; ./bin/update-rootaid 2>update-rootaid.log 1>&2 )" | sudo crontab -u ${ROOTAID_USER} -
 
 sudo touch ${ROOTAID_HOME}/.bashrc
 
@@ -44,29 +47,19 @@ sudo chown -R ${ROOTAID_USER}:${ROOTAID_USER} ${ROOTAID_HOME}
 sudo chmod -R go=u-w ${ROOTAID_HOME}
 sudo chmod -R go= ${ROOTAID_HOME}/.ssh
 
-cat >>${ROOTAID_HOME}/.bashrc <<EOF
-
-# Rootaid
-PATH=\$HOME/${ROOTAID_REPO_NAME}/bin:\$PATH
-export PATH
-EOF
-
-# For root
-cat >>/root/.bashrc <<EOF
+sudo cat >>${ROOTAID_HOME}/.bashrc <<EOF
 
 # Rootaid
 PATH=${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/bin:\$PATH
 export PATH
 EOF
 
-# Apache
-cat >>/etc/apache2/apache2.conf <<EOF
+# For root
+sudo cat >>/root/.bashrc <<EOF
 
 # Rootaid
-#Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/dir-structure.conf
-#Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/default-cache.conf
-#Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/pagespeed-global.conf
-#Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/apache/php-security.conf
+PATH=${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/bin:\$PATH
+export PATH
 EOF
 
 exit 0

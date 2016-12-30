@@ -4,6 +4,11 @@
 # Copyright (C) 2016 art of coding UG, https://www.art-of-coding.eu
 #
 
+
+#
+# Helper
+#
+
 e() {
     echo "$(basename $0): $*"
 }
@@ -20,7 +25,7 @@ myexit() {
 }
 
 #
-# Initialization
+# Initialization and setup
 #
 
 init_sudo() {

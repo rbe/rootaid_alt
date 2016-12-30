@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -o nounset
+BASE="$(dirname `pwd $0`)"
+
+${BASE}/setup-language
+${BASE}/setup-timezone
+sudo apt-get update
+${BASE}/install-system-tools
+${BASE}/install-openssl
+${BASE}/install-mysql
+${BASE}/install-apache2
+${BASE}/install-apache2-php5
+${BASE}/install-apache2-modpagespeed
+
+# Apache
+sudo cat >>/etc/apache2/apache2.conf <<EOF
+
+# Rootaid
+#Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/modules/apache/conf/dir-structure.conf
+#Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/modules/apache/conf/default-cache.conf
+#Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/modules/apache/conf/pagespeed-global.conf
+#Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/modules/apache/conf/php-security.conf
+#Include ${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/modules/apache/conf/tls.conf
+EOF
+
+exit 0

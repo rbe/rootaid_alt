@@ -1,0 +1,13 @@
+#!/bin/bash
+
+execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
+bindir="${execdir}/bin"
+
+echo >>${HOME}/.bashrc <<EOF
+
+# Rootaid
+PATH=${bindir}:\$PATH
+export PATH
+EOF
+
+exit 0

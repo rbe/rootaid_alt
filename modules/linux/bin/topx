@@ -1,0 +1,42 @@
+#!/bin/sh
+
+# Check number of arguments
+if [ $# -lt 2 ]; then
+    echo "usage: $0 <number> <directory>"
+    exit 1
+fi
+
+# Our one and only argument: the directory to scan
+TOPX=$1
+DIR=$2
+
+# Go through all files in $DIR, execute du on it,
+# do a reverse sort on the first ten results and
+# save to a temporary file
+find $DIR -type f | xargs du -ab | sort -n -r -k 1 | head -$TOPX > $$.tmp
+
+# A counter
+i=0
+# Read temporary file line by line
+while read -r kb name; do
+    # Increase counter
+    i=$((i + 1))
+    # Start printing result
+    echo -n "$i $(dirname $name) $(basename $name)"
+    # We avoid using awk here; a counter for parsing output of ls -l command
+    j=0
+    # Loop through columns of ls -l
+    for t in $(ls -l $name); do
+        # Only print column 0 (rights) and 4 (size in bytes)
+        [ $j -eq 0 -o $j -eq 4 ] && echo -n " $t"
+        # Increase counter
+        j=$((j + 1))
+    done
+    echo
+done < $$.tmp
+
+# Remove temporary file
+rm $$.tmp
+
+# Exit normal
+exit 0
