@@ -377,12 +377,12 @@ then
             init_sudo
         ;;
         ssh-deployment-key)
-            init_dploy_ssh_keys ${PROJECT_REPO_HOST}
+            init_dploy_ssh_key ${PROJECT_REPO_HOST}
         ;;
         all)
             setup_linux
             init_sudo
-            init_dploy_ssh_keys ${PROJECT_REPO_HOST}
+            init_dploy_ssh_key ${PROJECT_REPO_HOST}
         ;;
     esac
 fi
