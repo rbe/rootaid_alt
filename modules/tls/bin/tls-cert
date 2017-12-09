@@ -178,7 +178,7 @@ do
             exit 1
         ;;
         h)
-        _show_usage
+            _show_usage
         ;;
     esac
 done
