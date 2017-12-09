@@ -3,6 +3,8 @@
 # Copyright (C) 2017 art of coding UG, https://www.art-of-coding.eu
 #
 
+set -o nounset
+
 . $(dirname $0)/libsh
 
 # Script name

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o nounset
+
 if [ $# -neq 1 ]
 then
     echo "usage: $0 <username>"

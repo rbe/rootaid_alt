@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o nounset
+
 execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
 basedir="$(pushd ${execdir}/.. >/dev/null ; pwd ; popd >/dev/null)"
 etcdir="${basedir}/etc"
