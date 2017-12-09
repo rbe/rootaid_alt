@@ -2,14 +2,19 @@
 
 set -o nounset
 
-if [ $# -neq 1 ]
+execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
+basedir="$(pushd ${execdir}/.. >/dev/null ; pwd ; popd >/dev/null)"
+
+if [ $# != 1 ]
 then
     echo "usage: $0 <username>"
     exit 1
-elif [ $# -eq 1 ]
+elif [ $# = 1 ]
 then
     user=$1
     home=$(getent passwd ${user} | cut -d: -f6)
+    ROOTAID_HOME=${basedir}
+    ROOTAID_REPO_NAME=eu.artofcoding.rootaid
     sudo cat >>${home}/.bashrc <<EOF
 
 # Rootaid
