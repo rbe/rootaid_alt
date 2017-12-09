@@ -171,7 +171,7 @@ build_review_release() {
     mkdir ${project_mvn_repo} 2>/dev/null
     e "Building branch ${PROJECT_BRANCH} in ${builddir}"
     local MAVEN_LOCAL_REPO="-Dmaven.repo.local=${project_mvn_repo}"
-    mvn -l maven.log ${MVN_OPTIONS} ${MAVEN_LOCAL_REPO} ${MVN_SETTINGS} ${MVN_PROFILES_REVIEW} help:active-profiles clean verify
+    mvn -l maven.log ${MVN_OPTIONS} ${MAVEN_LOCAL_REPO} ${MVN_SETTINGS} ${MVN_PROFILES_REVIEW} help:active-profiles clean install
     if [ $? -eq 0 ]
     then
         local deploydir="${PROJECT_DEPLOY_REVIEW}/${branch}/deploy"
@@ -194,7 +194,7 @@ build_production_release() {
     mkdir ${project_mvn_repo} 2>/dev/null
     e "Building branch ${PROJECT_BRANCH} in ${builddir}"
     local MAVEN_LOCAL_REPO="-Dmaven.repo.local=${project_mvn_repo}"
-    mvn -l maven.log ${MVN_OPTIONS} ${MAVEN_LOCAL_REPO} ${MVN_SETTINGS} ${MVN_PROFILES_PRODUCTION} ${MVN_SKIPTESTS} help:active-profiles clean package
+    mvn -l maven.log ${MVN_OPTIONS} ${MAVEN_LOCAL_REPO} ${MVN_SETTINGS} ${MVN_PROFILES_PRODUCTION} ${MVN_SKIPTESTS} help:active-profiles clean install
     if [ $? -eq 0 ]
     then
         local deploydir="${PROJECT_DEPLOY_PRODUCTION}/${branch}/deploy"
@@ -331,12 +331,12 @@ then
             init_sudo
         ;;
         ssh-deployment-key)
-            init_dploy_ssh_keys ${PROJECT_REPO_HOST}
+            init_dploy_ssh_key ${PROJECT_REPO_HOST}
         ;;
         all)
             setup_linux
             init_sudo
-            init_dploy_ssh_keys ${PROJECT_REPO_HOST}
+            init_dploy_ssh_key ${PROJECT_REPO_HOST}
         ;;
     esac
 fi
