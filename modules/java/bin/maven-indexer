@@ -1,0 +1,40 @@
+#!/bin/bash
+#
+# Copyright (C) 2017 art of coding UG, https://www.art-of-coding.eu
+#
+
+. $(dirname $0)/rootaid-common
+. $(resolve-config `basename $0`)
+
+#
+# maven-indexer
+#
+
+BIN_DIR="$(dirname $0)"
+GIT_REPO="git://git.apache.org/maven-indexer.git"
+
+clone_and_build() {
+    bin_avail git mvn rm cp
+    git clone ${GIT_REPO}
+    pushd maven-indexer >/dev/null
+    mvn clean verify
+    rm ${BIN_DIR}/indexer-cli-*.jar 2>/dev/null
+    cp indexer-cli/target/indexer-cli-*.jar ${BIN_DIR}
+    popd >/dev/null
+}
+
+run_maven_indexer() {
+    bin_avail java
+    MAVEN_INDEXER_JAR="$(ls ${BIN_DIR}/indexer-cli-*.jar)"
+    MAVEN_INDEXER_OPTS="${MAVEN_INDEXER_REPO_OPTS} ${MAVEN_INDEXER_INDEX_OPTS}"
+    local jar="${BIN_DIR}/${MAVEN_INDEXER_JAR}"
+    if [ ! -f "${jar}" ]
+    then
+        clone_and_build
+    fi
+    java ${JAVA_OPTS} -jar ${jar} ${MAVEN_INDEXER_OPTS}
+}
+
+run_maven_indexer
+
+exit 0
