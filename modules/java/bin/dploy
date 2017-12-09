@@ -1,28 +1,9 @@
 #!/bin/bash
-
 #
-# Copyright (C) 2016 art of coding UG, https://www.art-of-coding.eu
-#
-
-
-#
-# Helper
+# Copyright (C) 2016-2017 art of coding UG, https://www.art-of-coding.eu
 #
 
-e() {
-    echo "$(basename $0): $*"
-}
-
-myexit() {
-    local ev=$1
-    shift
-    local msg=$*
-    if [ ${ev} -gt 0 ]
-    then
-        [ -z "${msg}" ] && e "Exit value ${ev}, exiting" || e ${msg}
-        exit ${ev}
-    fi
-}
+. $(dirname $0)/libsh
 
 #
 # Initialization and setup
@@ -36,51 +17,13 @@ ${PROJECT_USER} ALL=(ALL) ALL, NOPASSWD: /usr/sbin/service, /bin/mkdir, /bin/mv,
 EOF
 }
 
-check_osrelease() {
-    if [ -f /etc/os-release ]
-    then
-        . /etc/os-release
-    else
-        e "Debian(-based) only: /etc/os-release not found"
-        exit 1
-    fi
-}
-
-setup_debian_apt() {
-    if [ "${ID}" -eq "debian" ]
-    then
-        e "Setting up apt repositories"
-        # Maven
-        if [ "${VERSION_ID}" -eq 8 ]
-        then
-            sudo cat >/etc/apt/sources.list.d/jessie-backports.list <<EOF
-deb http://http.debian.net/debian jessie-backports main
-EOF
-        fi
-        # Java
-        sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886
-        sudo cat >/etc/apt/sources.list.d/webupd8team.list <<EOF
-deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main
-deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main
-EOF
-    fi
-}
-
 install_software_debian() {
     e "Installing software"
     sudo apt-get -q -y update
     sudo apt-get -q -y install ssh
     sudo apt-get -q -y install git
     sudo apt-get -q -y install unzip
-    sudo apt-get -q -y install oracle-java8-\*
-    sudo apt-get -q -y install maven=3.3\*
-}
-
-setup_ubuntu_apt() {
-    e "Setting up apt repositories"
-    sudo add-apt-repository ppa:webupd8team/java
-    sudo add-apt-repository ppa:andrei-pozolotin/maven3
-    sudo apt-get -q -y update
+    sudo apt-get -q -y install redis-server redis-cli
 }
 
 install_software_ubuntu() {
