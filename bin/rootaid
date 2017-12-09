@@ -4,6 +4,8 @@ execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
 basedir="$(pushd ${execdir}/.. >/dev/null ; pwd ; popd >/dev/null)"
 etcdir="${basedir}/etc"
 
+. $(dirname $0)/libsh
+
 create_user() {
     sudo addgroup --gid ${ROOTAID_GID} ${ROOTAID_USER}
     sudo adduser --uid ${ROOTAID_UID} --ingroup ${ROOTAID_USER} --home ${ROOTAID_HOME} --disabled-password --gecos "Rootaid" ${ROOTAID_USER}
