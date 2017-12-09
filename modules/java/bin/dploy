@@ -32,20 +32,26 @@ install_software_ubuntu() {
     sudo apt-get -q -y install ssh
     sudo apt-get -q -y install git
     sudo apt-get -q -y install unzip
-    sudo apt-get -q -y install oracle-java8-\*
-    sudo apt-get -q -y install maven3
+    sudo apt-get -q -y install redis-server redis-cli
+}
+
+sdkman_install_java() {
+    e "Installing Java software"
+    # TODO Install sdkman
+    sdk install java
+    sdk install maven
 }
 
 setup_linux() {
     check_osrelease
     case "${ID}" in
         debian)
-            setup_debian_apt
             install_software_debian
+            sdkman_install_java
         ;;
         ubuntu)
-            setup_ubuntu_apt
             install_software_ubuntu
+            sdkman_install_java
         ;;
         *)
             e "Unsupported Linux distribution"
