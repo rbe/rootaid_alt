@@ -14,11 +14,11 @@ then
     user=$1
     home=$(getent passwd ${user} | cut -d: -f6)
     ROOTAID_HOME=${basedir}
-    ROOTAID_REPO_NAME=eu.artofcoding.rootaid
     sudo cat >>${home}/.bashrc <<EOF
-
+#
 # Rootaid
-PATH=${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/bin:\$PATH
+#
+PATH=${ROOTAID_HOME}/bin:\$PATH
 export PATH
 EOF
 fi
