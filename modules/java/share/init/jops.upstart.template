@@ -1,0 +1,26 @@
+# asciidocserver
+
+description     "DESCRIPTION"
+author          "AUTHOR"
+
+start on (net-device-up
+          and local-filesystems
+          and runlevel [2345])
+stop on runlevel [016]
+
+respawn
+
+env PATH=/usr/bin:/usr/local/bin
+env APP_PORT=APPPORT
+env APP_HOME=APPHOME
+env APP_JAVA_OPTS=APPJAVAOPTS
+env APP_ARTIFACT=APPARTIFACT
+env APP_OPTS=APPOPTS
+env LOGREDIR=2>>${LOGFILE} 1>&2
+
+pre-start script
+sudo touch APPLOGFILE
+sudo chown USER:GROUP APPLOGFILE
+end script
+
+exec sudo -E -u USER sh -c "cd ${APP_HOME} ; java ${APP_JAVA_OPTS} -jar ${APP_ARTIFACT} ${APP_OPTS} ${LOGREDIR} &"

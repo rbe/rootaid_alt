@@ -1,15 +1,24 @@
 #!/bin/bash
+#
+# Copyright (C) 2016-2017 art of coding UG, https://www.art-of-coding.eu
+#
 
-e() {
-    echo "jops: $*"
-}
+. $(dirname $0)/libsh
+
+#
+# - Manage lifecycle of Java software
+# undeployed -> deploying -> deployed
+# deployed -> starting -> started
+# started -> stopping -> stopped
+# stopped -> undeploying -> undeployed
+#
 
 #
 # jops
 #
 
 show_usage() {
-    echo "Usage: $0 { start | stop | encrypt } [<path to jdrive.conf>]"
+    echo "Usage: $0 { start | stop | encrypt } [<path to jops.conf>]"
 }
 
 show_vars() {
@@ -42,6 +51,11 @@ fi
 
 . ${JOPS_CONF}
 JOPS_CONF_DIR="$(pushd "`dirname ${JOPS_CONF}`" >/dev/null ; pwd ; popd >/dev/null)"
+
+JOPS_EXECDIR="$(pushd "`dirname $0`" >/dev/null ; pwd ; popd >/dev/null)"
+JOPS_BASEDIR="$(pushd "${JOPS_EXECDIR}/.." >/dev/null ; pwd ; popd >/dev/null)"
+JOPS_SHAREDIR="${JOPS_BASEDIR}/share"
+
 APP_HOME="$(dirname ${JOPS_CONF_DIR})"
 APP_USER=${APP_USER:-$(getent passwd `id -u` | cut -d: -f1)}
 APP_GROUP=${APP_GROUP:-$(getent group `id -g` | cut -d: -f1)}
@@ -54,6 +68,36 @@ APP_LOGFILE="${APP_LOGDIR}/${APP_NAME}-${APP_VERSION}.log"
 
 VERBOSE=
 
+create_systemd() {
+    local t=jops@.systemd.template.$$
+    cat ${JOPS_SHAREDIR}/init/jops@.systemd.template \
+        | sed "s#DESCRIPTION#${appname}#" \
+        | sed "s#SYSLOGIDENTIFIER#${appname}#" \
+        | sed "s#USER#${APP_USER}#" \
+        | sed "s#GROUP#${APP_GROUP}#" \
+        | sed "s#WORKINGDIRECTORY#${basedir}#" \
+        | sed "s#APPLOGFILE#${APP_LOGFILE}#" \
+        | sed "s#APPPORT#808%i#" \ # 808%i
+        | sed "s#APPHOME#${APP_HOME}#" \
+        | sed "s#APPJAVAOPTS#${APP_JAVA_OPTS}#" \
+        | sed "s#APPARTIFACT#${APP_ARTIFACT}#" \
+        | sed "s#APPOPTS#${APP_OPTS}#" \
+        > $t
+    sudo mv $t /etc/systemd/system/${appname}@.service
+    sudo systemctl daemon-reload
+    sudo systemctl enable ${appname}@0
+    sudo systemctl status ${appname}@0
+}
+
+create_upstart() {
+    local t=jops.upstart.template.$$
+    cat ${JOPS_SHAREDIR}/init/jops.upstart.template \
+        | sed "s###" \
+        > $t
+    sudo mv $t /etc/init/${appname}
+    sudo initctl reload-configuration
+}
+
 start_app() {
     e "Starting ${APP_NAME}..."
     [ -n "${VERBOSE}" ] && show_vars
@@ -61,7 +105,7 @@ start_app() {
     sudo chown ${APP_USER}:${APP_GROUP} ${APP_LOGFILE}
     logredir="2>>${APP_LOGFILE} 1>&2"
     export APP_HOME
-    sudo -Eu ${APP_USER} sh -c "cd ${APP_HOME} ; java ${JAVA_OPTS} -jar ${APP_ARTIFACT} ${APP_OPTS} ${logredir} &"
+    sudo -E -u ${APP_USER} sh -c "cd ${APP_HOME} ; java ${APP_JAVA_OPTS} -jar ${APP_ARTIFACT} ${APP_OPTS} ${logredir} &"
 }
 
 stop_app() {
@@ -80,7 +124,7 @@ stop_app() {
     fi
 }
 
-encrypt() {
+encrypt_configuration() {
     e "*"
     e "* WARNING"
     e "*"
@@ -119,7 +163,7 @@ case "${MODE}" in
         stop_app
     ;;
     encrypt)
-        encrypt
+        encrypt_configuration
     ;;
     *)
         show_usage

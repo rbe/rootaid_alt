@@ -1,0 +1,26 @@
+[Unit]
+Description=DESCRIPTION
+After=network-online.target
+
+[Service]
+Type=simple
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=SYSLOGIDENTIFIER
+Restart=always
+User=USER
+Group=GROUP
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=APP_PORT=APPPORT
+Environment=APP_HOME=APPHOME
+Environment=APP_JAVA_OPTS=APPJAVAOPTS
+Environment=APP_ARTIFACT=APPARTIFACT
+Environment=APP_OPTS=APPOPTS
+Environment=LOGREDIR=2>>${LOGFILE} 1>&2
+WorkingDirectory=WORKINGDIRECTORY
+ExecStartPre=sudo touch APPLOGFILE
+ExecStartPre=sudo chown USER:GROUP APPLOGFILE
+ExecStart=sudo -E -u USER sh -c "cd ${APP_HOME} ; java ${APP_JAVA_OPTS} -jar ${APP_ARTIFACT} ${APP_OPTS} ${LOGREDIR} &"
+
+[Install]
+WantedBy=multi-user.target
