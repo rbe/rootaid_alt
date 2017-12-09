@@ -10,4 +10,8 @@ PATH=${bindir}:\$PATH
 export PATH
 EOF
 
+a2enmod ssl
+a2enmod headers
+a2enmod macro
+
 exit 0
