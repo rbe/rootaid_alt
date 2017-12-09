@@ -1,0 +1,52 @@
+#!/bin/bash
+
+_show_usage() {
+    echo "usage: $0 -m <email address> -d <domain> [-d <domain>]"
+    echo ""
+    echo "example:"
+    echo "$0 -m bob@example.org -d example.org -d www.example.org"
+    echo ""
+}
+
+declare -a DOMAINS
+
+while getopts ":d:m:" opt
+do
+    case "${opt}" in
+        m)
+            EMAIL=${OPTARG}
+        ;;
+        d)
+            DOMAINS=(${DOMAINS[*]} ${OPTARG})
+        ;;
+        \?)
+            echo "Invalid option: -${OPTARG}" >&2
+            exit 1
+        ;;
+        :)
+            echo "Option -${OPTARG} requires an argument"
+            exit 1
+        ;;
+        h)
+            _show_usage
+        ;;
+    esac
+done
+
+if [ -n "${EMAIL}" -a ${#DOMAINS[*]} -gt 0 ]
+then
+    declare domains
+    for d in ${DOMAINS[*]}
+    do
+        domains="${domains} -d ${d}"
+    done
+    echo letsencrypt certonly \
+        --agree-tos --renew-by-default \
+        --webroot -w /var/lib/letsencrypt/ \
+        -m ${EMAIL} \
+        ${domains}
+else
+    _show_usage
+fi
+
+exit 0

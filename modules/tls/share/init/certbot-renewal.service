@@ -1,0 +1,8 @@
+# /etc/systemd/system/certbot.service
+
+[Unit]
+Description=Let's Encrypt renewal
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/certbot --quiet --agree-tos renew
