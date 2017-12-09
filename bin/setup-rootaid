@@ -47,19 +47,4 @@ sudo chown -R ${ROOTAID_USER}:${ROOTAID_USER} ${ROOTAID_HOME}
 sudo chmod -R go=u-w ${ROOTAID_HOME}
 sudo chmod -R go= ${ROOTAID_HOME}/.ssh
 
-sudo cat >>${ROOTAID_HOME}/.bashrc <<EOF
-
-# Rootaid
-PATH=${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/bin:\$PATH
-export PATH
-EOF
-
-# For root
-sudo cat >>/root/.bashrc <<EOF
-
-# Rootaid
-PATH=${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/bin:\$PATH
-export PATH
-EOF
-
 exit 0
