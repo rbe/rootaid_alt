@@ -11,7 +11,7 @@ then
     moduledir="${basedir}/modules/${module}"
     if [ -d "${moduledir}" -a -f "${moduledir}/.init-module" ]
     then
-        ${moduledir}/.init-module
+        bash ${moduledir}/.init-module
     else
         echo "Cannot find ${moduledir} or .init-module"
         exit 1
