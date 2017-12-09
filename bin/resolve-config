@@ -1,0 +1,44 @@
+#!/bin/bash
+#
+# Copyright (C) 2017 art of coding UG, https://www.art-of-coding.eu
+#
+
+. $(dirname $0)/libsh
+
+# Script name
+if [ -z "$1" ]
+then
+    e "Script name missing"
+    exit 1
+fi
+CONF_SCRIPT=$1
+# Project name or 'global'
+CONF_NAME="${$2:-global}"
+CONF_FILE="${CONF_SCRIPT}.${CONF_NAME}.conf"
+
+# Find...
+# 1. script.conf_name.conf in current working directory
+# 2. share/conf/script.conf_name.conf
+
+CONF_FOUND=""
+
+F=./${CONF_FILE}
+if [ ! "${CONF_FOUND}" -a -f "${F}" ]
+then
+    CONF_FOUND="true"
+fi
+F=share/conf/${CONF_FILE}
+if [ ! "${CONF_FOUND}" -a -f ${F} ]
+then
+    CONF_FOUND="true"
+fi
+
+if [ "${CONF_FOUND}" ]
+then
+    echo ${F}
+elif [ ! "${CONF_FOUND}" ]
+    e "Configuration ${CONF_FILE} not found"
+    exit 1
+fi
+
+exit 0
