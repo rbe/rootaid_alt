@@ -43,13 +43,14 @@ init_module() {
 }
 
 show_usage() {
-    echo "usage: $0 -s | -u | -i <user>"
+    echo "usage: $0 -s | -u | -i <user> | -m <module>"
     echo "    -s           Setup rootaid"
     echo "    -u           Update rootaid"
     echo "    -i <user>    Init rootaid for user"
+    echo "    -m <module   Init module"
 }
 
-while getopts ":hi:su" opt
+while getopts ":hi:m:su" opt
 do
     case "$opt" in
         h)
@@ -58,6 +59,9 @@ do
         ;;
         i)
             bash ${execdir}/init-rootaid ${USER}
+        ;;
+        m)
+            bash ${execdir}/init-module ${OPTARG}
         ;;
         s)
             bash ${execdir}/setup-rootaid
