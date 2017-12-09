@@ -3,6 +3,19 @@
 execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
 bindir="${execdir}/bin"
 
+echo "Installing sdkman.io"
+sudo apt-get -q -y update
+sudo apt-get install -y curl
+sudo apt-get install -y unzip
+if [ -x curl -a -x unzip ]
+then
+    curl -s "https://get.sdkman.io" | bash
+else
+    echo "Could not find curl or unzip"
+    exit 1
+fi
+
+echo "Adding bin to PATH"
 echo >>${HOME}/.bashrc <<EOF
 
 # Rootaid
