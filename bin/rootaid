@@ -40,9 +40,20 @@ init_module() {
     fi
 }
 
-while getopts ":i:su" opt
+show_usage() {
+    echo "usage: $0 -s | -u | -i <user>"
+    echo "    -s           Setup rootaid"
+    echo "    -u           Update rootaid"
+    echo "    -i <user>    Init rootaid for user"
+}
+
+while getopts ":hi:su" opt
 do
     case "$opt" in
+        h)
+            show_usage
+            exit 1
+        ;;
         i)
             bash ${execdir}/init-rootaid ${USER}
         ;;
@@ -62,5 +73,11 @@ do
         ;;
     esac
 done
+
+if [ $# -eq 0 ]
+then
+    show_usage
+    exit 1
+fi
 
 exit 0
