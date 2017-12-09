@@ -1,0 +1,37 @@
+#!/bin/bash
+#
+# Copyright (C) 2017 art of coding UG, https://www.art-of-coding.eu
+#
+
+e() {
+    echo "$(basename $0): $*"
+}
+
+myexit() {
+    local ev=$1
+    shift
+    local msg=$*
+    if [ ${ev} -gt 0 ]
+    then
+        [ -z "${msg}" ] && e "Exit value ${ev}, exiting" || e ${msg}
+        exit ${ev}
+    fi
+}
+
+bin_avail() {
+    for b in $*
+    do
+        x=$(which ${b})
+        [ ! -x "${x}" ] && echo "Cannot find ${b}"
+    done
+}
+
+check_osrelease() {
+    if [ -f /etc/os-release ]
+    then
+        . /etc/os-release
+    else
+        e "Debian(-based) only: /etc/os-release not found"
+        exit 1
+    fi
+}
