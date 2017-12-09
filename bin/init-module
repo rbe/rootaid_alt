@@ -6,11 +6,18 @@ basedir="$(pushd ${execdir}/.. >/dev/null ; pwd ; popd >/dev/null)"
 module=$1
 if [ -n "${module}" ]
 then
-  ${basedir}/modules/${module}/.init-module
+    moduledir="${basedir}/modules/${module}"
+    if [ -d "${moduledir}" -a -f "${moduledir}/.init-module" ]
+    then
+        ${moduledir}/.init-module
+    else
+        echo "Cannot find ${moduledir} or .init-module"
+        exit 1
+    fi
 else
-  echo "No module given"
-  echo "usage: $0 <module>"
-  exit 1
+    echo "No module given"
+    echo "usage: $0 <module>"
+    exit 1
 fi
 
 exit 0
