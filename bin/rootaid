@@ -4,7 +4,7 @@ execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
 basedir="$(pushd ${execdir}/.. >/dev/null ; pwd ; popd >/dev/null)"
 etcdir="${basedir}/etc"
 
-. $(dirname $0)/libsh
+. ${execdir}/libsh
 
 create_user() {
     sudo addgroup --gid ${ROOTAID_GID} ${ROOTAID_USER}
@@ -18,44 +18,6 @@ clone_repo() {
     ssh-keygen -R bitbucket.org
     ssh-keyscan bitbucket.org >>${HOME}/.ssh/known_hosts
     git clone --depth 1 https://bitbucket.org/artofcoding/${ROOTAID_REPO_NAME}.git
-    popd >/dev/null
-}
-
-setup_rootaid() {
-    if [ $(id -u) -neq 0 ]
-    then
-        echo "$(basename $0) -s: Please execute this script as root"
-        exit 1
-    fi
-    [ -f ${etcdir}/$0.conf ] && . ${etcdir}/$0.conf
-    [ -f $0.conf ] && . $0.conf
-    ROOTAID_UID=${ROOTAID_UID:-$(id -u)}
-    ROOTAID_GID=${ROOTAID_GID:-$(id -g)}
-    ROOTAID_USER=${ROOTAID_USER:-$(getent passwd ${ROOTAID_UID} | cut -d: -f1)}
-    ROOTAID_HOME="${ROOTAID_HOME:-$(getent passwd ${ROOTAID_UID} | cut -d: -f6)}"
-
-    apt-get -y install sudo
-    cat >/etc/sudoers.d/rootaid <<EOF
-${ROOTAID_USER} ALL=(ALL) ALL, NOPASSWD: ALL
-EOF
-
-    clone_repo
-    echo "0 * * * * ( cd ${ROOTAID_REPO_NAME} ; ./bin/rootaid -u 2>update-rootaid.log 1>&2 )" | sudo crontab -u ${ROOTAID_USER} -
-
-    sudo touch ${ROOTAID_HOME}/.bashrc
-    sudo mkdir ${ROOTAID_HOME}/.ssh
-    sudo touch ${ROOTAID_HOME}/.ssh/authorized_keys
-    sudo mkdir ${ROOTAID_HOME}/apache
-    sudo mkdir ${ROOTAID_HOME}/apache/conf
-    sudo chown -R ${ROOTAID_USER}:${ROOTAID_USER} ${ROOTAID_HOME}
-    sudo chmod -R go=u-w ${ROOTAID_HOME}
-    sudo chmod -R go= ${ROOTAID_HOME}/.ssh
-}
-
-update_rootaid() {
-    pushd ${basedir} >/dev/null
-    git reset --hard
-    git pull origin master --recurse-submodules
     popd >/dev/null
 }
 
@@ -78,27 +40,17 @@ init_module() {
     fi
 }
 
-init_rootaid() {
-    user=$1
-    home=$(getent passwd ${user} | cut -d: -f6)
-    sudo cat >>${home}/.bashrc <<EOF
-# Rootaid
-PATH=${ROOTAID_HOME}/${ROOTAID_REPO_NAME}/bin:\$PATH
-export PATH
-EOF
-}
-
 while getopts ":i:su" opt
 do
     case "$opt" in
         i)
-            init-rootaid ${USER}
+            bash ${execdir}/init-rootaid ${USER}
         ;;
         s)
-            setup-rootaid
+            bash ${execdir}/setup-rootaid
         ;;
         u)
-            update_rootaid
+            bash ${execdir}/update-rootaid
         ;;
         \?)
             e "Invalid option: -${OPTARG}" >&2
