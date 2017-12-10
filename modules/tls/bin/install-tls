@@ -1,15 +1,23 @@
 #!/bin/bash
 
-cat >/etc/apt/sources.list.d/jessie-backports.list <<EOF
+execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
+moduledir="$(pushd ${execdir}/.. >/dev/null ; pwd ; popd >/dev/null)"
+rootaid="$(pushd ${moduledir}/../.. >/dev/null ; pwd ; popd >/dev/null)"
+
+. ${rootaid}/bin/libsh
+
+has_sudo_right cat gpg apt-get mkdir
+if [ $? -gt 4 ]
+then
+    sudo cat >/etc/apt/sources.list.d/jessie-backports.list <<EOF
 deb http://http.debian.net/debian jessie-backports main
 EOF
-
-gpg --keyserver pgpkeys.mit.edu --recv-key 1397BC53640DB551
-gpg -a --export 1397BC53640DB551 | apt-key add -
-apt-get update
-
-apt-get install -y openssl
-apt-get install -y certbot -t jessie-backports
-mkdir /var/lib/letsencrypt/.well-known
+    sudo gpg --keyserver pgpkeys.mit.edu --recv-key 1397BC53640DB551
+    sudo gpg -a --export 1397BC53640DB551 | apt-key add -
+    sudo apt-get update
+    sudo apt-get install -y openssl
+    sudo apt-get install -y -t jessie-backports certbot
+    sudo mkdir /var/lib/letsencrypt/.well-known
+fi
 
 exit 0

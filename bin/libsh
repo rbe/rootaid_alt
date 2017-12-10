@@ -46,10 +46,13 @@ check_osrelease() {
 }
 
 has_sudo_right() {
-    if [ $(sudo -l | egrep -c ".*NOPASSWD:.*ALL|a2enmod") -ge 1 ]
-    then
-        return 1
-    else
-        return 0
-    fi
+    local rv=0
+    for i in $*
+    do
+        if [ $(sudo -l | egrep -c ".*NOPASSWD:.*ALL|${i}") -ge 1 ]
+        then
+            rv=$((rv + 1))
+        fi
+    done
+    return ${rv}
 }

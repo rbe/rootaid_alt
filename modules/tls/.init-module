@@ -15,7 +15,7 @@ PATH=${bindir}:\$PATH
 export PATH
 EOF
 
-has_sudo_right "ALL|a2enmod"
+has_sudo_right a2enmod
 if [ $? -eq 1 ]
 then
     sudo a2enmod ssl
