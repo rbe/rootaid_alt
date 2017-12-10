@@ -12,7 +12,7 @@ echo "Installing sdkman.io"
 curl -s "https://get.sdkman.io" | bash
 
 echo "Adding bin to PATH"
-echo >>${HOME}/.bashrc <<EOF
+cat >>${HOME}/.bashrc <<EOF
 #
 # Rootaid - Module java
 #
