@@ -1,4 +1,15 @@
 #!/bin/bash
+#
+# Copyright (C) 2017 art of coding UG, http://www.art-of-coding.eu
+#
+
+set -o nounset
+
+execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
+moduledir="$(pushd ${execdir}/.. >/dev/null ; pwd ; popd >/dev/null)"
+rootaid="$(pushd ${moduledir}/../.. >/dev/null ; pwd ; popd >/dev/null)"
+
+. ${rootaid}/bin/libsh
 
 _show_usage() {
     echo "usage: $0 -m <email address> -d <domain> [-d <domain>]"
@@ -33,6 +44,7 @@ do
     esac
 done
 
+has_sudo_right letsencrypt
 if [ -n "${EMAIL}" -a ${#DOMAINS[*]} -gt 0 ]
 then
     declare domains
@@ -40,7 +52,7 @@ then
     do
         domains="${domains} -d ${d}"
     done
-    letsencrypt certonly \
+    sudo letsencrypt certonly \
         --agree-tos --renew-by-default \
         --webroot -w /var/lib/letsencrypt/ \
         -m ${EMAIL} \
