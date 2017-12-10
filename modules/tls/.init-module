@@ -3,7 +3,7 @@
 execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
 moduledir="$(pushd ${execdir}/. >/dev/null ; pwd ; popd >/dev/null)"
 bindir="${moduledir}/bin"
-rootaid="$(pushd ${moduledir}/.. >/dev/null ; pwd ; popd >/dev/null)"
+rootaid="$(pushd ${moduledir}/../.. >/dev/null ; pwd ; popd >/dev/null)"
 
 . ${rootaid}/bin/libsh
 
