@@ -4,9 +4,6 @@ execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
 bindir="${execdir}/bin"
 
 echo "Installing sdkman.io"
-sudo apt-get -q -y update
-sudo apt-get install -y curl
-sudo apt-get install -y unzip
 if [ -x /usr/bin/curl -a -x /usr/bin/unzip ]
 then
     curl -s "https://get.sdkman.io" | bash
@@ -17,8 +14,9 @@ fi
 
 echo "Adding bin to PATH"
 echo >>${HOME}/.bashrc <<EOF
-
-# Rootaid
+#
+# Rootaid - Module java
+#
 PATH=${bindir}:\$PATH
 export PATH
 EOF
