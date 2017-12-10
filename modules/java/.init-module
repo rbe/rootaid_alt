@@ -6,7 +6,7 @@ rootaid="$(pushd ${execdir}/../.. >/dev/null ; pwd ; popd >/dev/null)"
 
 . ${rootaid}/bin/libsh
 
-bin_avail curl unzip zip
+bin_avail sed curl unzip zip
 
 echo "Installing sdkman.io"
 curl -s "https://get.sdkman.io" | bash
