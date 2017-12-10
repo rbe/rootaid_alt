@@ -19,7 +19,7 @@ _show_usage() {
     echo ""
 }
 
-declare -a DOMAINS
+declare -a DOMAINS=("")
 
 while getopts ":d:m:" opt
 do
@@ -47,7 +47,7 @@ done
 has_sudo_right letsencrypt
 if [ -n "${EMAIL}" -a ${#DOMAINS[*]} -gt 0 ]
 then
-    declare domains
+    declare domains=("")
     for d in ${DOMAINS[*]}
     do
         domains="${domains} -d ${d}"
