@@ -29,7 +29,7 @@ bin_avail() {
             notfound=true
         fi
     done
-    if [ x${notfound} -eq xtrue ]
+    if [ x${notfound} = xtrue ]
     then
         exit 1
     fi
