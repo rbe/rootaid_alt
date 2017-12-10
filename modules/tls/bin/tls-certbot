@@ -40,7 +40,7 @@ then
     do
         domains="${domains} -d ${d}"
     done
-    echo letsencrypt certonly \
+    letsencrypt certonly \
         --agree-tos --renew-by-default \
         --webroot -w /var/lib/letsencrypt/ \
         -m ${EMAIL} \
