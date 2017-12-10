@@ -3,15 +3,20 @@
 execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
 bindir="${execdir}/bin"
 
-echo >>${HOME}/.bashrc <<EOF
-
+cat >>${HOME}/.bashrc <<EOF
+#
 # Rootaid
+#
 PATH=${bindir}:\$PATH
 export PATH
 EOF
 
-a2enmod ssl
-a2enmod headers
-a2enmod macro
+has_sudo_right "ALL|a2enmod"
+if [ x$? = xtrue ]
+then
+    sudo a2enmod ssl
+    sudo a2enmod headers
+    sudo a2enmod macro
+fi
 
 exit 0
