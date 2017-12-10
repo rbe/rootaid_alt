@@ -3,8 +3,15 @@
 # Copyright (C) 2017 art of coding UG, https://www.art-of-coding.eu
 #
 
-. $(dirname $0)/rootaid-common
-. $(resolve-config `basename $0`)
+set -o nounset
+
+execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
+moduledir="$(pushd ${execdir}/.. >/dev/null ; pwd ; popd >/dev/null)"
+rootaid="$(pushd ${moduledir}/.. >/dev/null ; pwd ; popd >/dev/null)"
+
+. ${rootaid}/bin/libsh
+
+. $(${rootaid}/bin/resolve-config `basename $0`)
 
 #
 # maven-indexer

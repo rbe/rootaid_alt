@@ -7,6 +7,12 @@
 # chkconfig: 5 99 80
 # description: Manages Tomcat with multi-site setup.
 
+set -o nounset
+
+execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
+moduledir="$(pushd ${execdir}/.. >/dev/null ; pwd ; popd >/dev/null)"
+rootaid="$(pushd ${moduledir}/.. >/dev/null ; pwd ; popd >/dev/null)"
+
 CATALINA_HOME=${CATALINA_HOME:-/opt/apache-tomcat-7.0.52}
 if [ ! -d $CATALINA_HOME ]; then
     echo "No Tomcat installation found. Exiting."

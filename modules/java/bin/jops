@@ -3,7 +3,13 @@
 # Copyright (C) 2016-2017 art of coding UG, https://www.art-of-coding.eu
 #
 
-. $(dirname $0)/libsh
+set -o nounset
+
+execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
+moduledir="$(pushd ${execdir}/.. >/dev/null ; pwd ; popd >/dev/null)"
+rootaid="$(pushd ${moduledir}/.. >/dev/null ; pwd ; popd >/dev/null)"
+
+. ${rootaid}/bin/libsh
 
 #
 # - Manage lifecycle of Java software
