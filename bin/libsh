@@ -19,11 +19,20 @@ myexit() {
 }
 
 bin_avail() {
+    local notfound=false
     for b in $*
     do
         x=$(which ${b})
-        [ ! -x "${x}" ] && echo "Cannot find ${b}"
+        if [ ! -x "${x}" ]
+        then
+            echo "Cannot find ${b}"
+            notfound=true
+        fi
     done
+    if [ x${notfound} -eq xtrue ]
+    then
+        exit 1
+    fi
 }
 
 check_osrelease() {
