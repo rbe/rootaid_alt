@@ -1,7 +1,11 @@
 #!/bin/bash
 
 execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
-bindir="${execdir}/bin"
+moduledir="$(pushd ${execdir}/. >/dev/null ; pwd ; popd >/dev/null)"
+bindir="${moduledir}/bin"
+rootaid="$(pushd ${moduledir}/.. >/dev/null ; pwd ; popd >/dev/null)"
+
+. ${rootaid}/bin/libsh
 
 cat >>${HOME}/.bashrc <<EOF
 #
