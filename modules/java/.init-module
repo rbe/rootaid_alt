@@ -4,18 +4,12 @@ execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
 bindir="${execdir}/bin"
 rootaid="$(pushd ${execdir}/../.. >/dev/null ; pwd ; popd >/dev/null)"
 
-. ${rootaid}/libsh
+. ${rootaid}/bin/libsh
 
 bin_avail curl unzip zip
 
 echo "Installing sdkman.io"
-if [ -x /usr/bin/curl -a -x /usr/bin/zip -a -x /usr/bin/unzip ]
-then
-    curl -s "https://get.sdkman.io" | bash
-else
-    echo "Could not find curl, zip or unzip"
-    exit 1
-fi
+curl -s "https://get.sdkman.io" | bash
 
 echo "Adding bin to PATH"
 echo >>${HOME}/.bashrc <<EOF
