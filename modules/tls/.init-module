@@ -9,7 +9,7 @@ rootaid="$(pushd ${moduledir}/../.. >/dev/null ; pwd ; popd >/dev/null)"
 
 cat >>${HOME}/.bashrc <<EOF
 #
-# Rootaid
+# Rootaid - Module tls
 #
 PATH=${bindir}:\$PATH
 export PATH
