@@ -48,8 +48,8 @@ check_osrelease() {
 has_sudo_right() {
     if [ $(sudo -l | egrep -c "^.*ALL|a2enmod.*") -ge 1 ]
     then
-        return true
+        return 1
     else
-        return false
+        return 0
     fi
 }
