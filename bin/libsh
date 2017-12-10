@@ -46,7 +46,7 @@ check_osrelease() {
 }
 
 has_sudo_right() {
-    if [ $(sudo -l | egrep -c "^.*ALL|a2enmod.*") -ge 1 ]
+    if [ $(sudo -l | egrep -c ".*NOPASSWD:.*ALL|a2enmod") -ge 1 ]
     then
         return 1
     else
