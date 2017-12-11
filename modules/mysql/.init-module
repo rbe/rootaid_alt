@@ -1,11 +1,15 @@
 #!/bin/bash
 
 execdir="$(pushd `dirname $0` >/dev/null ; pwd ; popd >/dev/null)"
-bindir="${execdir}/bin"
+moduledir="$(pushd ${execdir}/. >/dev/null ; pwd ; popd >/dev/null)"
+rootaid="$(pushd ${moduledir}/../.. >/dev/null ; pwd ; popd >/dev/null)"
 
-echo >>${HOME}/.bashrc <<EOF
+bindir="${moduledir}/bin"
 
-# Rootaid
+cat >>${HOME}/.bashrc <<EOF
+#
+# Rootaid - Module mysql
+#
 PATH=${bindir}:\$PATH
 export PATH
 EOF
