@@ -19,6 +19,7 @@ _show_usage() {
     echo ""
 }
 
+declare EMAIL=
 declare -a DOMAINS=("")
 
 while getopts ":d:m:" opt
