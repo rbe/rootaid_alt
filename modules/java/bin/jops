@@ -42,7 +42,7 @@ show_vars() {
     e "  APP_HOME=${APP_HOME}"
     e "  APP_USER=${APP_USER}"
     e "  APP_ARTIFACT=${APP_ARTIFACT}"
-    e "  JAVA_OPTS=${JAVA_OPTS}"
+    e "  JAVA_OPTS=${JAVA_OPTS:-}"
     e "  APP_OPTS=${APP_OPTS}"
     e "  APP_LOGFILE=${APP_LOGFILE}"
     e ""
@@ -89,7 +89,7 @@ create_systemd() {
         | sed "s#GROUP#${APP_GROUP}#" \
         | sed "s#WORKINGDIRECTORY#${basedir}#" \
         | sed "s#APPLOGFILE#${APP_LOGFILE}#" \
-        | sed "s#APPPORT#808%i#" \ # 808%i
+        | sed "s#APPPORT#808%i#" \
         | sed "s#APPHOME#${APP_HOME}#" \
         | sed "s#APPJAVAOPTS#${APP_JAVA_OPTS}#" \
         | sed "s#APPARTIFACT#${APP_ARTIFACT}#" \
@@ -123,7 +123,7 @@ start_app() {
 stop_app() {
     e "Stopping ${APP_NAME}..."
     [ -n "${VERBOSE}" ] && show_vars
-    pid=$(ps ax | grep ${APP_NAME} | grep ${APP_PROFILE} | grep java | grep -v grep | awk '{print $1}')
+    pid=$(ps ax | grep ${APP_NAME} | grep ${APP_PROFILE} | grep java | grep -v grep | grep -v jops | awk '{print $1}')
     if [ -z "${pid}" ]
     then
         e "Cannot find process id for ${APP_NAME}."
